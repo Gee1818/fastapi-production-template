@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -25,7 +25,7 @@ class TrainingService(BaseModel):
             if model:
                 return model
 
-        return make_pipeline([StandardScaler(), LinearRegression()])  # type: ignore[return-value]
+        return make_pipeline([StandardScaler(), LogisticRegression()])  # type: ignore[return-value]
 
     def train(self, X: Sequence[Sequence[float]], y: Sequence[float]) -> MLModel:
         if len(X) != len(y):

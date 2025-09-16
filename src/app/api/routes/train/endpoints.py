@@ -1,19 +1,32 @@
+import io
+from typing import Annotated
+
+import polars as pl
 from dependency_injector.wiring import inject
-from fastapi import APIRouter
+from fastapi import APIRouter, File, UploadFile
 
 from app.api.dependencies import TrainingServiceDependency
 
 from .responses import RESPONSES
 from .schemas import TrainRequest, TrainResponse
 
-router = APIRouter(prefix="/prediction", tags=["Prediction"])
+router = APIRouter(prefix="/train", tags=["Train"])
 
 
 @router.post("/train", responses=RESPONSES)
 @inject
-def train(
-    training_record: TrainRequest,
+async def train(
+    file: Annotated[UploadFile, File(...)],
     training_service: TrainingServiceDependency,
 ) -> TrainResponse:
-    training_service.train(training_record.age, training_record.time_for_failure)
+    contents = await file.read()
+    df = pl.read_csv(io.BytesIO(contents))
+    X = df.select(["whiteElo", "blackElo"]).to_dicts()
+    y = df["result"].to_list()
+
+    req = TrainRequest(features=X, result=y)  # pyright: ignore[reportArgumentType]
+
+    X_matrix = [[f.whiteElo, f.blackElo] for f in req.features]
+
+    training_service.train(X_matrix, req.result)
     return TrainResponse()
