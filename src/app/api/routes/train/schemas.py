@@ -25,4 +25,5 @@ class TrainRequest(BaseSchema):
         return self
 
 
-class TrainResponse(BaseSchema): ...
+class TrainResponse(BaseSchema):
+    message: str = "Model trained successfully"

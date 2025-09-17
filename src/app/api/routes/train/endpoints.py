@@ -1,7 +1,5 @@
-import io
 from typing import Annotated
 
-import polars as pl
 from dependency_injector.wiring import inject
 from fastapi import APIRouter, File, UploadFile
 
@@ -19,12 +17,8 @@ async def train(
     file: Annotated[UploadFile, File(...)],
     training_service: TrainingServiceDependency,
 ) -> TrainResponse:
-    contents = await file.read()
-    df = pl.read_csv(io.BytesIO(contents))
-    X = df.select(["whiteElo", "blackElo"]).to_dicts()
-    y = df["result"].to_list()
-
-    req = TrainRequest(features=X, result=y)  # pyright: ignore[reportArgumentType]
+    features, result = training_service.prepare_data(file)
+    req = TrainRequest(features=features, result=result)  # type: ignore[arg-type]
 
     X_matrix = [[f.whiteElo, f.blackElo] for f in req.features]
 
