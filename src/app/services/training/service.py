@@ -1,19 +1,15 @@
-import io
-from collections.abc import Sequence
 from pathlib import Path
 
-import polars as pl
 from fastapi import UploadFile
 from pydantic import BaseModel, ConfigDict, Field
 from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import make_pipeline  # pyright: ignore[reportUnknownVariableType]
+from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from app.domain import MLModel
 from app.services.helper import load_model, save_model
 from app.settings import Settings
-
-from .exceptions import DimensionalityMismatchError
+from app.utils.df_utils import get_feats_and_target
 
 
 class TrainingService(BaseModel):
@@ -28,29 +24,10 @@ class TrainingService(BaseModel):
             if model:
                 return model
 
-        return make_pipeline(StandardScaler(), LogisticRegression())  # type: ignore[return-value]
+        return make_pipeline(StandardScaler(), LogisticRegression())  # type: ignore[attr-defined]
 
-    @staticmethod
-    def prepare_data(file: UploadFile) -> tuple[list[dict[int, int]], list[int]]:
-        """This function prepares the data for training.
-        It reads the uploaded CSV file, processes it using Polars,
-        and returns features and labels for training.
-        Args:
-            file (UploadFile): The uploaded CSV file.
-        Returns:
-            tuple[list[dict[str, float]], list[str]]: Features and labels for training.
-        """
-
-        contents = file.file.read()
-
-        df = pl.read_csv(io.BytesIO(contents))
-        X = df.select(["whiteElo", "blackElo"]).to_dicts()
-        y = df["result"].to_list()
-        return X, y  # type: ignore[return-value]
-
-    def train(self, X: Sequence[Sequence[float]], y: Sequence[float]) -> MLModel:
-        if len(X) != len(y):
-            raise DimensionalityMismatchError(x_dim=len(X), y_dim=len(y))
+    def train(self, file: UploadFile) -> MLModel:
+        X, y = get_feats_and_target(file)
 
         pipeline = self.model
         pipeline_fit = pipeline.fit(X, y)

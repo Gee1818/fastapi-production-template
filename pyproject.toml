@@ -13,6 +13,7 @@ dependencies = [
     "httpx>=0.28.1",
     "ipykernel>=6.30.1",
     "joblib>=1.5.1",
+    "pandera>=0.26.1",
     "polars>=1.33.1",
     "polyfactory>=2.22.2",
     "pydantic-settings>=2.10.1",
@@ -56,6 +57,7 @@ dev = [
 [tool.poe.tasks]
 serve = "uv run python -m app"
 serve-api = "uv run python -m app.api"
+serve-api-dev = "uv run uvicorn app.api:create_app --factory --host 0.0.0.0 --port 8000 --reload"
 serve-ui = "uv run python -m app.frontend"
 test = "uv run pytest"
 format = "uv run pre-commit run --all-files --verbose"

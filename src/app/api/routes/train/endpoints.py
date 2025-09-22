@@ -6,21 +6,16 @@ from fastapi import APIRouter, File, UploadFile
 from app.api.dependencies import TrainingServiceDependency
 
 from .responses import RESPONSES
-from .schemas import TrainRequest, TrainResponse
+from .schemas import TrainResponse
 
-router = APIRouter(prefix="/train", tags=["Train"])
+router = APIRouter(prefix="/train", tags=["train"])
 
 
 @router.post("/train", responses=RESPONSES)
 @inject
-async def train(
+def train(
     file: Annotated[UploadFile, File(...)],
     training_service: TrainingServiceDependency,
 ) -> TrainResponse:
-    features, result = training_service.prepare_data(file)
-    req = TrainRequest(features=features, result=result)  # type: ignore[arg-type]
-
-    X_matrix = [[f.whiteElo, f.blackElo] for f in req.features]
-
-    training_service.train(X_matrix, req.result)
+    training_service.train(file)
     return TrainResponse()
