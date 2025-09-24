@@ -31,3 +31,33 @@ def training_data_dimension_mismatch() -> tuple[list[list[float]], list[float]]:
     X = [[25.0], [30.0], [35.0]]
     y = [5.0, 6.0]
     return X, y
+
+
+@pytest.fixture
+def valid_chess_data() -> str:
+    return """result,whiteElo,blackElo
+-1,1706,1671
+1,2262,2191
+-1,2279,2339
+0,971,1040
+"""
+
+
+@pytest.fixture
+def invalid_elo_data() -> str:
+    return """result,whiteElo,blackElo
+-1,106,1671
+1,2262,2191
+-1,2279,2339
+0,971,1040
+"""
+
+
+@pytest.fixture
+def invalid_result_data() -> str:
+    return """result,whiteElo,blackElo
+-2,1706,1671
+1,2262,2191
+-1,2279,2339
+0,971,1040
+"""
