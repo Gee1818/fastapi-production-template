@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.8.20"
+    rev: "0.8.22"
     hooks:
     -   id: uv-lock
 
@@ -64,6 +64,8 @@ repos:
         -   "pytest-recording==0.13.4"
         -   "syrupy==4.9.1"
         -   "py-automapper>=2.2.0"
+        -   "pandera>=0.26.1"
+        -   "polars>=1.33.1"
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: "v1.18.2"
@@ -87,7 +89,8 @@ repos:
         -   "polyfactory>=2.22.2"
         -   "py-automapper>=2.2.0"
         -   "git+https://github.com/microsoft/python-type-stubs.git"
-
+        -   "pandera>=0.26.1"
+        -   "polars>=1.33.1"
 -   repo: https://github.com/nbQA-dev/nbQA
     rev: "1.9.1"
     hooks:
@@ -128,7 +131,8 @@ repos:
         -   "polyfactory>=2.22.2"
         -   "py-automapper>=2.2.0"
         -   "git+https://github.com/microsoft/python-type-stubs.git"
-
+        -   "pandera>=0.26.1"
+        -   "polars>=1.33.1"
 -   repo: https://github.com/kynan/nbstripout
     rev: "0.8.1"
     hooks:

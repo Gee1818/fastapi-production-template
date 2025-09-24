@@ -23,7 +23,7 @@ class TrainingService(BaseModel):
             if model:
                 return model
 
-        return make_pipeline(StandardScaler(), LogisticRegression())  # type: ignore[attr-defined]
+        return make_pipeline(StandardScaler(), LogisticRegression())  # type: ignore[assignment]
 
     def train(self, file: UploadFile) -> MLModel:
         X, y = get_feats_and_target(file)
