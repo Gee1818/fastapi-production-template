@@ -7,9 +7,8 @@ from sklearn.pipeline import make_pipeline  # pyright: ignore[reportUnknownVaria
 from sklearn.preprocessing import StandardScaler
 
 from app.domain.ml_model import MLModel
-from app.services.helper import load_model, save_model
+from app.services.helper import get_feats_and_target, load_model, save_model
 from app.settings import Settings
-from app.utils.df_utils import get_feats_and_target
 
 
 class TrainingService(BaseModel):
