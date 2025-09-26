@@ -1,10 +1,7 @@
-from typing import Protocol, Self, runtime_checkable
-
-import polars as pl
+from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
 class MLModel(Protocol):
-    def predict(self, X: pl.DataFrame) -> pl.Series: ...
-
-    def fit(self, X: pl.DataFrame, y: pl.Series) -> Self: ...
+    def predict(self, X: Any, **kwargs: Any) -> Any: ...
+    def fit(self, X: Any, y: Any, **kwargs: Any) -> Any: ...
