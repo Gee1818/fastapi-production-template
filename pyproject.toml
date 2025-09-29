@@ -168,6 +168,9 @@ ignore = [
     "COM812",
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"*.ipynb" = ["ALL"]
+
 [tool.ruff.format]
 # Set Ruff to imitate Black
 quote-style = "double"
