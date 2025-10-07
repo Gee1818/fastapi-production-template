@@ -1,16 +1,6 @@
-from enum import IntEnum
-
 import pandera as pa
 import pandera.polars as ppl
 from pandera.typing import Series
-
-
-class GameResult(IntEnum):
-    """Chess game results: -1 = Black wins, 0 = Draw, 1 = White wins"""
-
-    BLACK_WINS = -1
-    DRAW = 0
-    WHITE_WINS = 1
 
 
 class ChessGameSchema(ppl.DataFrameModel):

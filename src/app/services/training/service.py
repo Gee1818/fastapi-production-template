@@ -3,7 +3,7 @@ from pathlib import Path
 from fastapi import UploadFile
 from pydantic import BaseModel, ConfigDict, Field
 from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import make_pipeline  # pyright: ignore[reportUnknownVariableType]
 from sklearn.preprocessing import StandardScaler
 
 from app.domain.ml_model import MLModel
