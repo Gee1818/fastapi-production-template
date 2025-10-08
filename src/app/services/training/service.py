@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from fastapi import UploadFile
+from joblib import Memory
 from pydantic import BaseModel, ConfigDict, Field
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline  # pyright: ignore[reportUnknownVariableType]
@@ -23,7 +24,9 @@ class TrainingService(BaseModel):
             if model:
                 return model
 
-        return make_pipeline(StandardScaler(), LogisticRegression())
+        memory = Memory(location=".pipe_cache", verbose=0)
+
+        return make_pipeline(StandardScaler(), LogisticRegression(), memory=memory)
 
     def train(self, file: UploadFile) -> MLModel:
         X, y = get_feats_and_target(file)
