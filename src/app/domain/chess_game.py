@@ -2,19 +2,20 @@ import pandera as pa
 import pandera.polars as ppl
 from pandera.typing import Series
 
+from .constants import ELOLimits
+
 
 class ChessGameSchema(ppl.DataFrameModel):
     """Schema for chess game training data validation."""
 
-    # Player ratings (typically 400-3000+ for chess)
     whiteElo: Series[int] = pa.Field(
-        ge=400,  # Minimum realistic rating
-        le=4000,  # Maximum realistic rating (even for engines)
+        ge=ELOLimits.MIN,
+        le=ELOLimits.MAX,
         description="White player's Elo rating",
     )
 
     blackElo: Series[int] = pa.Field(
-        ge=400, le=4000, description="Black player's Elo rating"
+        ge=ELOLimits.MIN, le=ELOLimits.MAX, description="Black player's Elo rating"
     )
 
     # Game result must be one of the valid outcomes
