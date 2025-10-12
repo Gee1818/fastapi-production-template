@@ -1,19 +1,21 @@
+from typing import Annotated
+
 from dependency_injector.wiring import inject
-from fastapi import APIRouter
+from fastapi import APIRouter, File, UploadFile
 
 from app.api.dependencies import TrainingServiceDependency
 
 from .responses import RESPONSES
-from .schemas import TrainRequest, TrainResponse
+from .schemas import TrainResponse
 
-router = APIRouter(prefix="/prediction", tags=["Prediction"])
+router = APIRouter(prefix="/train", tags=["train"])
 
 
 @router.post("/train", responses=RESPONSES)
 @inject
 def train(
-    training_record: TrainRequest,
+    file: Annotated[UploadFile, File(...)],
     training_service: TrainingServiceDependency,
 ) -> TrainResponse:
-    training_service.train(training_record.age, training_record.time_for_failure)
+    training_service.train(file)
     return TrainResponse()

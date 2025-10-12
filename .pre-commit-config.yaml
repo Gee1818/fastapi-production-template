@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.8.14"
+    rev: "0.9.0"
     hooks:
     -   id: uv-lock
 
@@ -37,7 +37,7 @@ repos:
     -   id: pre-commit-update
 
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.12.11"
+    rev: "v0.14.0"
     hooks:
     -   id: ruff-format
     -   id: ruff-check
@@ -45,7 +45,7 @@ repos:
         -   "--exit-non-zero-on-fix"
 
 -   repo: https://github.com/pycqa/pylint
-    rev: "v3.3.8"
+    rev: "v3.3.9"
     hooks:
     -   id: pylint
         additional_dependencies:
@@ -64,9 +64,11 @@ repos:
         -   "pytest-recording==0.13.4"
         -   "syrupy==4.9.1"
         -   "py-automapper>=2.2.0"
+        -   "pandera>=0.26.1"
+        -   "polars>=1.33.1"
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.17.1"
+    rev: "v1.18.2"
     hooks:
     -   id: mypy
         additional_dependencies:
@@ -87,7 +89,8 @@ repos:
         -   "polyfactory>=2.22.2"
         -   "py-automapper>=2.2.0"
         -   "git+https://github.com/microsoft/python-type-stubs.git"
-
+        -   "pandera>=0.26.1"
+        -   "polars>=1.33.1"
 -   repo: https://github.com/nbQA-dev/nbQA
     rev: "1.9.1"
     hooks:
@@ -128,14 +131,15 @@ repos:
         -   "polyfactory>=2.22.2"
         -   "py-automapper>=2.2.0"
         -   "git+https://github.com/microsoft/python-type-stubs.git"
-
+        -   "pandera>=0.26.1"
+        -   "polars>=1.33.1"
 -   repo: https://github.com/kynan/nbstripout
     rev: "0.8.1"
     hooks:
     -   id: nbstripout
 
 -   repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: "v9.22.0"
+    rev: "v9.23.0"
     hooks:
     -   id: commitlint
         stages:

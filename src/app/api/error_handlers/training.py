@@ -1,14 +1,14 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from app.services.training import DimensionalityMismatchError
+from app.services.exceptions import DataValidationError
 
 
-def dimensionality_mismatch_handler(
+def data_validation_error_handler(
     _: Request,
-    exc: DimensionalityMismatchError,
+    exc: DataValidationError,
 ) -> JSONResponse:
     return JSONResponse(
         status_code=400,
-        content={"detail": str(exc)},
+        content={"detail": exc.message},
     )

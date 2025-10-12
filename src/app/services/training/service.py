@@ -1,16 +1,15 @@
-from collections.abc import Sequence
 from pathlib import Path
 
+from fastapi import UploadFile
+from joblib import Memory
 from pydantic import BaseModel, ConfigDict, Field
-from sklearn.linear_model import LinearRegression
-from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import make_pipeline  # pyright: ignore[reportUnknownVariableType]
 from sklearn.preprocessing import StandardScaler
 
-from app.domain import MLModel
-from app.services.helper import load_model, save_model
+from app.domain.ml_model import MLModel
+from app.services.helper import get_feats_and_target, load_model, save_model
 from app.settings import Settings
-
-from .exceptions import DimensionalityMismatchError
 
 
 class TrainingService(BaseModel):
@@ -25,11 +24,12 @@ class TrainingService(BaseModel):
             if model:
                 return model
 
-        return make_pipeline([StandardScaler(), LinearRegression()])  # type: ignore[return-value]
+        memory = Memory(location=".pipe_cache", verbose=0)
 
-    def train(self, X: Sequence[Sequence[float]], y: Sequence[float]) -> MLModel:
-        if len(X) != len(y):
-            raise DimensionalityMismatchError(x_dim=len(X), y_dim=len(y))
+        return make_pipeline(StandardScaler(), LogisticRegression(), memory=memory)
+
+    def train(self, file: UploadFile) -> MLModel:
+        X, y = get_feats_and_target(file)
 
         pipeline = self.model
         pipeline_fit = pipeline.fit(X, y)
