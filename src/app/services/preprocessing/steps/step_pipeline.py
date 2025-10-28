@@ -21,6 +21,12 @@ from .filter import GameFilter
 from .mapping import GameMapping
 from .parse_df import ConvertToDf
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    force=True,  # This ensures it overrides any existing config
+)
+
 
 class PreprocessingPipeline:
     @staticmethod

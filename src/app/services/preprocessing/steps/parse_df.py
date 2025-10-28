@@ -68,7 +68,7 @@ class ConvertToDf:
     @staticmethod
     def _apply_schema(df: pl.DataFrame) -> pl.DataFrame:
         return df.with_columns(
-            pl.col("WhiteElo").cast(pl.Int16), pl.col("BlackElo").cast(pl.Int16)
+            pl.col("WhiteElo").cast(pl.Int64), pl.col("BlackElo").cast(pl.Int64)
         )
 
     @staticmethod
@@ -89,6 +89,6 @@ class ConvertToDf:
     def _add_move_count(df: pl.DataFrame) -> pl.DataFrame:
         return df.with_columns(
             pl.col("Moves")
-            .map_elements(ConvertToDf._count_moves, return_dtype=pl.Int16)
+            .map_elements(ConvertToDf._count_moves, return_dtype=pl.Int64)
             .alias("NumMoves")
         )
