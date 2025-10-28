@@ -20,3 +20,4 @@ class SelectionConfig:
             "BlackRatingDiff",
         ]
     )
+    target_feature: str = "Result"

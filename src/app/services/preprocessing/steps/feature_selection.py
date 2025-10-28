@@ -5,5 +5,9 @@ from app.services.preprocessing.config.feature_selection_config import Selection
 
 class FeatureSelector:
     @staticmethod
-    def select_features(df: pl.DataFrame, config: SelectionConfig) -> pl.DataFrame:
-        return df.drop(config.features_to_drop)
+    def select_features(
+        df: pl.DataFrame, config: SelectionConfig
+    ) -> tuple[pl.DataFrame, pl.Series]:
+        X = df.drop(config.features_to_drop)
+        y = df[config.target_feature]
+        return X, y

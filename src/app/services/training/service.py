@@ -8,7 +8,14 @@ from sklearn.pipeline import make_pipeline  # pyright: ignore[reportUnknownVaria
 from sklearn.preprocessing import StandardScaler
 
 from app.domain.ml_model import MLModel
-from app.services.helper import get_feats_and_target, load_model, save_model
+from app.services.helper import load_model, save_model
+from app.services.preprocessing.config.config import (
+    feature_engineer_config,
+    filter_config,
+    mapping_config,
+    selection_config,
+)
+from app.services.preprocessing.steps.step_pipeline import PreprocessingPipeline
 from app.settings import Settings
 
 
@@ -29,7 +36,13 @@ class TrainingService(BaseModel):
         return make_pipeline(StandardScaler(), LogisticRegression(), memory=memory)
 
     def train(self, file: UploadFile) -> MLModel:
-        X, y = get_feats_and_target(file)
+        X, y = PreprocessingPipeline.run_pipeline(
+            file=file,
+            filter_config=filter_config,
+            mapping_config=mapping_config,
+            feature_engineer_config=feature_engineer_config,
+            selection_config=selection_config,
+        )
 
         pipeline = self.model
         pipeline_fit = pipeline.fit(X, y)

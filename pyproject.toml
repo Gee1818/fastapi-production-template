@@ -27,6 +27,7 @@ dependencies = [
 [tool.uv]
 default-groups = [
     "dev",
+    "lint",
 ]
 
 [dependency-groups]
