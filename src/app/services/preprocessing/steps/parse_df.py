@@ -17,7 +17,13 @@ class ConvertToDf:
 
         df = pl.DataFrame(games)
 
+        df.drop("BlackTitle")
+
         df = ConvertToDf._apply_schema(df)
+
+        df = ConvertToDf._fill_nulls(df)
+
+        df.write_csv("/home/ge/MCD/samples_games.csv")
 
         return ConvertToDf._add_move_count(df)
 
@@ -63,6 +69,13 @@ class ConvertToDf:
     def _apply_schema(df: pl.DataFrame) -> pl.DataFrame:
         return df.with_columns(
             pl.col("WhiteElo").cast(pl.Int16), pl.col("BlackElo").cast(pl.Int16)
+        )
+
+    @staticmethod
+    def _fill_nulls(df: pl.DataFrame) -> pl.DataFrame:
+        return df.with_columns(
+            pl.col("WhiteRatingDiff").fill_null(pl.lit(0)),
+            pl.col("BlackRatingDiff").fill_null(pl.lit(0)),
         )
 
     @staticmethod
