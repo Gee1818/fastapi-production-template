@@ -1,6 +1,9 @@
 import polars as pl
 from fastapi import UploadFile
+from pandera.errors import SchemaError
 
+from app.domain.chess_game import ChessGameSchema
+from app.services.exceptions import DataValidationError
 from app.services.preprocessing.config.feature_engineer_config import (
     FeatureEngineerConfig,
 )
@@ -27,6 +30,11 @@ class PreprocessingPipeline:
         selection_config: SelectionConfig,
     ) -> tuple[pl.DataFrame, pl.Series]:
         df = ConvertToDf.read_file(file)
+        try:
+            ChessGameSchema.validate(df)
+        except SchemaError as e:
+            raise DataValidationError(message=f"Data validation failed: {e!s}") from e
+
         df = GameFilter.apply_filters(df, filter_config)
         df = GameMapping.apply_mappings(df, mapping_config)
         df = FeatureEngineer.add_features(df, feature_engineer_config)
