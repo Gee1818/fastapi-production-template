@@ -16,19 +16,4 @@ filter_config: FilterConfig = FilterConfig(
 
 feature_engineer_config: FeatureEngineerConfig = FeatureEngineerConfig()
 mapping_config: MappingConfig = MappingConfig()
-selection_config: SelectionConfig = SelectionConfig(
-    features_to_drop=[
-        "Site",
-        "Date",
-        "Round",
-        "White",
-        "Black",
-        "UTCDate",
-        "UTCTime",
-        "BlackTitle",
-        "NumMoves",
-        "Moves",
-        "WhiteRatingDiff",
-        "BlackRatingDiff",
-    ]
-)
+selection_config: SelectionConfig = SelectionConfig()
