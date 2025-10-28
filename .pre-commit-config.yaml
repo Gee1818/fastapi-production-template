@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.9.0"
+    rev: "0.9.5"
     hooks:
     -   id: uv-lock
 
@@ -37,7 +37,7 @@ repos:
     -   id: pre-commit-update
 
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.14.0"
+    rev: "v0.14.2"
     hooks:
     -   id: ruff-format
     -   id: ruff-check
@@ -45,11 +45,12 @@ repos:
         -   "--exit-non-zero-on-fix"
 
 -   repo: https://github.com/pycqa/pylint
-    rev: "v3.3.9"
+    rev: "v4.0.2"
     hooks:
     -   id: pylint
         additional_dependencies:
         -   "dependency-injector>=4.48.1"
+        -   "chess>=1.11.2"
         -   "fastapi==0.116.1"
         -   "joblib>=1.5.1"
         -   "pydantic-settings>=2.10.1"
@@ -74,6 +75,7 @@ repos:
         additional_dependencies:
         -   "dependency-injector>=4.48.1"
         -   "fastapi==0.116.1"
+        -   "chess>=1.11.2"
         -   "joblib>=1.5.1"
         -   "joblib-stubs==1.5.0.1.20250510"
         -   "pydantic-settings>=2.10.1"
@@ -115,6 +117,7 @@ repos:
         -   "mypy==1.15.0"
         -   "dependency-injector>=4.48.1"
         -   "fastapi==0.116.1"
+        -   "chess>=1.11.2"
         -   "joblib>=1.5.1"
         -   "joblib-stubs==1.5.0.1.20250510"
         -   "pydantic-settings>=2.10.1"
