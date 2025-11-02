@@ -15,7 +15,7 @@ from app.services.preprocessing.config.config import (
     mapping_config,
     selection_config,
 )
-from app.services.preprocessing.steps.step_pipeline import PreprocessingPipeline
+from app.services.preprocessing.steps.step_pipeline import run_pipeline
 from app.settings import Settings
 
 
@@ -36,7 +36,7 @@ class TrainingService(BaseModel):
         return make_pipeline(StandardScaler(), LogisticRegression(), memory=memory)
 
     def train(self, file: UploadFile) -> MLModel:
-        X, y = PreprocessingPipeline.run_pipeline(
+        X, y = run_pipeline(
             file=file,
             filter_config=filter_config,
             mapping_config=mapping_config,

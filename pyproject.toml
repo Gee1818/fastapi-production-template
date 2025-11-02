@@ -224,7 +224,6 @@ load-plugins = [
     "pylint_pydantic",
 ]
 py-version = "3.12"
-suggestion-mode = true
 
 [tool.pylint.basic]
 argument-naming-style = "snake_case"

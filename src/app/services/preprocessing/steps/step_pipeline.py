@@ -28,39 +28,37 @@ logging.basicConfig(
 )
 
 
-class PreprocessingPipeline:
-    @staticmethod
-    def run_pipeline(
-        file: UploadFile,
-        filter_config: FilterConfig,
-        mapping_config: MappingConfig,
-        feature_engineer_config: FeatureEngineerConfig,
-        selection_config: SelectionConfig,
-    ) -> tuple[pl.DataFrame, pl.Series]:
-        logger = logging.getLogger(__name__)
-        logger.info("Starting preprocessing pipeline")
+def run_pipeline(
+    file: UploadFile,
+    filter_config: FilterConfig,
+    mapping_config: MappingConfig,
+    feature_engineer_config: FeatureEngineerConfig,
+    selection_config: SelectionConfig,
+) -> tuple[pl.DataFrame, pl.Series]:
+    logger = logging.getLogger(__name__)
+    logger.info("Starting preprocessing pipeline")
 
-        logger.info("Reading file")
-        df = read_file(file)
+    logger.info("Reading file")
+    df = read_file(file)
 
-        try:
-            logger.info("Validating data schema")
-            ChessGameSchema.validate(df)
-        except SchemaError as e:
-            logger.exception(f"Data validation failed: {e!s}")
-            raise DataValidationError(message=f"Data validation failed: {e!s}") from e
+    try:
+        logger.info("Validating data schema")
+        ChessGameSchema.validate(df)
+    except SchemaError as e:
+        logger.exception("Data validation failed", extra={"error": str(e)})
+        raise DataValidationError(message=f"Data validation failed: {e!s}") from e
 
-        logger.info("Applying filters")
-        df = apply_filters(df, filter_config)
+    logger.info("Applying filters")
+    df = apply_filters(df, filter_config)
 
-        logger.info("Applying mappings")
-        df = apply_mappings(df, mapping_config)
+    logger.info("Applying mappings")
+    df = apply_mappings(df, mapping_config)
 
-        logger.info("Adding features")
-        df = add_features(df, feature_engineer_config)
+    logger.info("Adding features")
+    df = add_features(df, feature_engineer_config)
 
-        logger.info("Selecting features")
-        X, y = select_features(df, selection_config)
+    logger.info("Selecting features")
+    X, y = select_features(df, selection_config)
 
-        logger.info("Preprocessing pipeline completed successfully")
-        return X, y
+    logger.info("Preprocessing pipeline completed successfully")
+    return X, y
