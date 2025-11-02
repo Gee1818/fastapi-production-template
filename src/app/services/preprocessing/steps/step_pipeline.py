@@ -15,11 +15,11 @@ from app.services.preprocessing.config.feature_selection_config import (
 from app.services.preprocessing.config.filter_config import FilterConfig
 from app.services.preprocessing.config.mapping_config import MappingConfig
 
-from .feature_engineer import FeatureEngineer
-from .feature_selection import FeatureSelector
-from .filter import GameFilter
-from .mapping import GameMapping
-from .parse_df import ConvertToDf
+from .feature_engineer import add_features
+from .feature_selection import select_features
+from .filter import apply_filters
+from .mapping import apply_mappings
+from .parse_df import read_file
 
 logging.basicConfig(
     level=logging.INFO,
@@ -41,7 +41,7 @@ class PreprocessingPipeline:
         logger.info("Starting preprocessing pipeline")
 
         logger.info("Reading file")
-        df = ConvertToDf.read_file(file)
+        df = read_file(file)
 
         try:
             logger.info("Validating data schema")
@@ -51,16 +51,16 @@ class PreprocessingPipeline:
             raise DataValidationError(message=f"Data validation failed: {e!s}") from e
 
         logger.info("Applying filters")
-        df = GameFilter.apply_filters(df, filter_config)
+        df = apply_filters(df, filter_config)
 
         logger.info("Applying mappings")
-        df = GameMapping.apply_mappings(df, mapping_config)
+        df = apply_mappings(df, mapping_config)
 
         logger.info("Adding features")
-        df = FeatureEngineer.add_features(df, feature_engineer_config)
+        df = add_features(df, feature_engineer_config)
 
         logger.info("Selecting features")
-        X, y = FeatureSelector.select_features(df, selection_config)
+        X, y = select_features(df, selection_config)
 
         logger.info("Preprocessing pipeline completed successfully")
         return X, y
