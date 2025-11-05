@@ -4,13 +4,12 @@ from fastapi import UploadFile
 from pydantic import BaseModel, ConfigDict, Field
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import (
-    train_test_split,  # pyright: ignore[reportUnknownVariableType]
-)
+from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
 from app.domain.ml_model import MLModel
+from app.services.helper import save_model
 from app.services.preprocessing.config.config import (
     feature_engineer_config,
     filter_config,
