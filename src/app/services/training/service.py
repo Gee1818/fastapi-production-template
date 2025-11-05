@@ -1,14 +1,16 @@
 from pathlib import Path
 
 from fastapi import UploadFile
-from joblib import Memory
 from pydantic import BaseModel, ConfigDict, Field
-from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import make_pipeline  # pyright: ignore[reportUnknownVariableType]
-from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import (
+    train_test_split,  # pyright: ignore[reportUnknownVariableType]
+)
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
 from app.domain.ml_model import MLModel
-from app.services.helper import load_model, save_model
 from app.services.preprocessing.config.config import (
     feature_engineer_config,
     filter_config,
@@ -24,16 +26,45 @@ class TrainingService(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    @property
-    def model(self) -> MLModel:
-        if self.model_path.exists():
-            model = load_model(self.model_path)
-            if model:
-                return model
+    @staticmethod
+    def build_pipeline(
+        numeric_cols: list[str],
+        ordinal_cols: list[str],
+        ohe_cols: list[str],
+    ) -> Pipeline:
+        preprocessing_pipeline = ColumnTransformer(
+            transformers=[
+                ("num", StandardScaler(), numeric_cols),
+                (
+                    "ord",
+                    OrdinalEncoder(
+                        handle_unknown="use_encoded_value", unknown_value=-1
+                    ),
+                    ordinal_cols,
+                ),
+                (
+                    "ohe",
+                    OneHotEncoder(handle_unknown="ignore", sparse_output=False),
+                    ohe_cols,
+                ),
+            ],
+        )
 
-        memory = Memory(location=".pipe_cache", verbose=0)
-
-        return make_pipeline(StandardScaler(), LogisticRegression(), memory=memory)
+        return Pipeline(
+            steps=[
+                ("preprocessor", preprocessing_pipeline),
+                (
+                    "classifier",
+                    RandomForestClassifier(
+                        n_estimators=100,
+                        max_depth=10,
+                        min_samples_split=80,
+                        max_samples=0.5,
+                        random_state=42,
+                    ),
+                ),
+            ]
+        )
 
     def train(self, file: UploadFile) -> MLModel:
         X, y = run_pipeline(
@@ -44,7 +75,23 @@ class TrainingService(BaseModel):
             selection_config=selection_config,
         )
 
-        pipeline = self.model
-        pipeline_fit = pipeline.fit(X, y)
-        save_model(pipeline_fit, self.model_path)
+        ohe_cols = ["Event", "TimeControl", "Termination"]
+
+        ordinal_cols = ["ECO", "Opening"]
+
+        numeric_cols = list(set(X.columns) - set(ohe_cols) - set(ordinal_cols))
+
+        pipeline = self.build_pipeline(
+            numeric_cols=numeric_cols,
+            ordinal_cols=ordinal_cols,
+            ohe_cols=ohe_cols,
+        )
+
+        X_train, X_test, y_train, _y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42, stratify=y
+        )
+        pipeline.fit(X_train, y_train)
+        save_model(pipeline, self.model_path)
+        pipeline.predict(X_test)
+
         return pipeline
