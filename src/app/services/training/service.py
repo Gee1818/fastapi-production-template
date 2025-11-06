@@ -4,7 +4,9 @@ from fastapi import UploadFile
 from pydantic import BaseModel, ConfigDict, Field
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import (
+    train_test_split,  # pyright: ignore[reportUnknownVariableType]
+)
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
@@ -86,11 +88,11 @@ class TrainingService(BaseModel):
             ohe_cols=ohe_cols,
         )
 
-        X_train, X_test, y_train, _y_test = train_test_split(
+        X_train, X_test, y_train, _y_test = train_test_split(  # pyright: ignore[reportUnknownVariableType]
             X, y, test_size=0.2, random_state=42, stratify=y
-        )
-        pipeline.fit(X_train, y_train)
+        )  # pyright: ignore[reportUnknownVariableType]
+        pipeline.fit(X_train, y_train)  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
         save_model(pipeline, self.model_path)
-        pipeline.predict(X_test)
+        pipeline.predict(X_test)  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
 
         return pipeline
