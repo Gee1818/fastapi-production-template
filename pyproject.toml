@@ -60,7 +60,7 @@ serve = "uv run python -m app"
 serve-api = "uv run python -m app.api"
 serve-api-dev = "uv run uvicorn app.api:create_app --factory --host 0.0.0.0 --port 8000 --reload"
 serve-ui = "uv run python -m app.frontend"
-test = "uv run pytest"
+test = "uv run --group test pytest"
 format = "uv run pre-commit run --all-files --verbose"
 check-coverage = "uv run coverage report --fail-under=80"
 docker-build = "docker buildx build --progress plain -t app ."
@@ -97,6 +97,7 @@ patch_tags = ["fix"]
 #########################
 
 [tool.pytest.ini_options]
+pythonpath = ["src"]
 addopts = [
     "-r=A",
     "--doctest-modules",

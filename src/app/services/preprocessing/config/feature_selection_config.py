@@ -13,7 +13,6 @@ class SelectionConfig:
             "Black",
             "UTCDate",
             "UTCTime",
-            "BlackTitle",
             "NumMoves",
             "Moves",
             "WhiteRatingDiff",

@@ -15,13 +15,13 @@ def read_file(file: UploadFile) -> pl.DataFrame:
 
     df = pl.DataFrame(games)
 
-    df.drop("BlackTitle")
+    # Drop BlackTitle column if it exists
+    if "BlackTitle" in df.columns:
+        df = df.drop("BlackTitle")
 
     df = _apply_schema(df)
 
     df = _fill_nulls(df)
-
-    df.write_csv("/home/ge/MCD/samples_games.csv")
 
     return _add_move_count(df)
 
