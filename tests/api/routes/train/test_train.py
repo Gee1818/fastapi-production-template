@@ -4,7 +4,6 @@ from fastapi import status
 from fastapi.testclient import TestClient
 from syrupy.assertion import SnapshotAssertion
 
-# Valid PGN format data with multiple games - changed to "Rated Blitz game" to match filter
 dummy_data = """
 [Event "Rated Blitz game"]
 [Site "https://lichess.org/VsUqVhC2"]
@@ -186,7 +185,7 @@ dummy_data = """
 
 1. e4 Nf6 2. Nf3 d6 3. d3 c6 4. Nc3 e5 5. Bg5 Be7 6. Be2 O-O 7. Qd2 Qc7 8. O-O-O Rd8 9. h4 h6 10. Ne1 hxg5 11. hxg5 Nh7 12. Qe3 Bxg5 13. f4 Bxf4 14. Qxf4 exf4 15. Nf3 f5 16. Rh4 fxe4 17. dxe4 g5 18. Rh5 Bg4 19. Rh6 Bxf3 20. Bxf3 Nd7 21. Rdh1 Ndf6 22. Rg6+ Kf7 23. Rgh6 Rh8 24. e5 dxe5 25. Ne4 Nxe4 26. Bxe4 Kg8 27. Bxh7+ Rxh7 28. Rg6+ Kh8 29. Rd1 Rg8 30. Rgd6 g4 31. R6d2 f3 32. gxf3 gxf3 33. Rf2 Rf8 34. Rdf1 e4 35. a3 Qf4+ 36. Kb1 1-0
 
-"""
+"""  # noqa: E501
 
 
 def test_train_endpoint_success(
