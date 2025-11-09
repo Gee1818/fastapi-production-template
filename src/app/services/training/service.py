@@ -52,7 +52,9 @@ class TrainingService(BaseModel):
             ],
         )
 
-        memory = Memory(location=str(Settings.MODEL_PATH / "pipeline_cache"), verbose=0)
+        memory = Memory(
+            location=str(Settings.MODEL_DIRECTORY / "pipeline_cache"), verbose=0
+        )
 
         return Pipeline(
             steps=[
