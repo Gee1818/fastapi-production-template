@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from fastapi import UploadFile
+from joblib import Memory
 from pydantic import BaseModel, ConfigDict, Field
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
@@ -51,6 +52,8 @@ class TrainingService(BaseModel):
             ],
         )
 
+        memory = Memory(location=str(Settings.MODEL_PATH / "pipeline_cache"), verbose=0)
+
         return Pipeline(
             steps=[
                 ("preprocessor", preprocessing_pipeline),
@@ -59,12 +62,15 @@ class TrainingService(BaseModel):
                     RandomForestClassifier(
                         n_estimators=100,
                         max_depth=10,
+                        min_samples_leaf=2,
+                        max_features="sqrt",
                         min_samples_split=80,
                         max_samples=0.5,
                         random_state=42,
                     ),
                 ),
-            ]
+            ],
+            memory=memory,
         )
 
     def train(self, file: UploadFile) -> MLModel:

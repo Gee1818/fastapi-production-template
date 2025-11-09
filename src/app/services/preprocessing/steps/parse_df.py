@@ -47,9 +47,7 @@ def _parse_game_block(block: str) -> dict[str, str] | None:
     game_data: dict[str, str] = dict(headers)
 
     # Extract moves
-    moves_match = re.search(
-        r"\]\n\n(.+?)(?:\s+(?:1-0|0-1|1/2-1/2|\*))?$", block, re.DOTALL
-    )
+    moves_match = re.search(r"\]\n\n([\s\S]*?)(?:\s+(?:1-0|0-1|1/2-1/2|\*))?\Z", block)
 
     if moves_match:
         moves_text = moves_match.group(1).strip()
