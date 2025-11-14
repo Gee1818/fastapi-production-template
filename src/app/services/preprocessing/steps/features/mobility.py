@@ -18,18 +18,10 @@ def calculate_mobility(
             "weighted_mobility_diff": 0.0,
         }
 
-    current_turn = board.turn
-
-    if current_turn == chess.WHITE:
-        white_legal_moves = board.legal_moves.count()
-        board.turn = chess.BLACK
-        black_legal_moves = board.legal_moves.count()
-        board.turn = chess.WHITE
-    else:
-        black_legal_moves = board.legal_moves.count()
-        board.turn = chess.WHITE
-        white_legal_moves = board.legal_moves.count()
-        board.turn = chess.BLACK
+    white_legal_moves = board.legal_moves.count() if board.turn == chess.WHITE else 0
+    board.turn = chess.BLACK if board.turn == chess.WHITE else chess.WHITE
+    black_legal_moves = board.legal_moves.count()
+    board.turn = chess.BLACK if board.turn == chess.WHITE else chess.WHITE
 
     white_weighted = _calculate_weighted_mobility_for_white(board, config)
     black_weighted = _calculate_weighted_mobility_for_black(board, config)
