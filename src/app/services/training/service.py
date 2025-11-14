@@ -13,12 +13,14 @@ from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
 from app.domain.ml_model import MLModel
 from app.services.helper import save_model
-from app.services.preprocessing.config.config import (
-    feature_engineer_config,
-    filter_config,
-    mapping_config,
-    selection_config,
+from app.services.preprocessing.config.feature_engineer_config import (
+    FeatureEngineerConfig,
 )
+from app.services.preprocessing.config.feature_selection_config import (
+    SelectionConfig,
+)
+from app.services.preprocessing.config.filter_config import FilterConfig
+from app.services.preprocessing.config.mapping_config import MappingConfig
 from app.services.preprocessing.steps.step_pipeline import run_pipeline
 from app.settings import Settings
 
@@ -27,6 +29,11 @@ class TrainingService(BaseModel):
     model_path: Path = Field(default=Settings.MODEL_PATH)
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    filter_config: FilterConfig = FilterConfig()
+    mapping_config: MappingConfig = MappingConfig()
+    feature_engineer_config: FeatureEngineerConfig = FeatureEngineerConfig()
+    selection_config: SelectionConfig = SelectionConfig()
 
     @staticmethod
     def build_pipeline(
@@ -78,10 +85,10 @@ class TrainingService(BaseModel):
     def train(self, file: UploadFile) -> MLModel:
         X, y = run_pipeline(
             file=file,
-            filter_config=filter_config,
-            mapping_config=mapping_config,
-            feature_engineer_config=feature_engineer_config,
-            selection_config=selection_config,
+            filter_config=self.filter_config,
+            mapping_config=self.mapping_config,
+            feature_engineer_config=self.feature_engineer_config,
+            selection_config=self.selection_config,
         )
 
         ohe_cols = ["Event", "TimeControl", "Termination"]
