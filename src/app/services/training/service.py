@@ -24,6 +24,8 @@ from app.services.preprocessing.config.mapping_config import MappingConfig
 from app.services.preprocessing.steps.step_pipeline import run_pipeline
 from app.settings import Settings
 
+from .config_model import ModelConfig
+
 
 class TrainingService(BaseModel):
     model_path: Path = Field(default=Settings.MODEL_PATH)
@@ -69,13 +71,13 @@ class TrainingService(BaseModel):
                 (
                     "classifier",
                     RandomForestClassifier(
-                        n_estimators=100,
-                        max_depth=10,
-                        min_samples_leaf=2,
-                        max_features="sqrt",
-                        min_samples_split=80,
-                        max_samples=0.5,
-                        random_state=42,
+                        n_estimators=ModelConfig.n_estimators,
+                        max_depth=ModelConfig.max_depth,
+                        min_samples_leaf=ModelConfig.min_samples_leaf,
+                        max_features=ModelConfig.max_features,
+                        min_samples_split=ModelConfig.min_samples_split,
+                        max_samples=ModelConfig.max_samples,
+                        random_state=ModelConfig.random_state,
                     ),
                 ),
             ],
