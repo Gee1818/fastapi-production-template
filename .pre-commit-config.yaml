@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.9.9"
+    rev: "0.9.11"
     hooks:
     -   id: uv-lock
 
@@ -19,12 +19,12 @@ repos:
     -   id: debug-statements
 
 -   repo: https://github.com/gitleaks/gitleaks
-    rev: "v8.29.0"
+    rev: "v8.29.1"
     hooks:
     -   id: gitleaks
 
 -   repo: https://github.com/PyCQA/bandit
-    rev: "1.8.6"
+    rev: "1.9.2"
     hooks:
     -   id: bandit
         args:
@@ -37,7 +37,7 @@ repos:
     -   id: pre-commit-update
 
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.14.5"
+    rev: "v0.14.6"
     hooks:
     -   id: ruff-format
     -   id: ruff-check
@@ -137,7 +137,7 @@ repos:
         -   "pandera>=0.26.1"
         -   "polars>=1.33.1"
 -   repo: https://github.com/kynan/nbstripout
-    rev: "0.8.1"
+    rev: "0.8.2"
     hooks:
     -   id: nbstripout
 
