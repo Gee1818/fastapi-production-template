@@ -59,29 +59,26 @@ def calculate_pawn_structure(board: chess.Board | None) -> dict[str, int]:
     if board is None:
         return {"pawn_structure": 0}
 
-    pawn_w = [
-        idx
-        for idx, sq in enumerate(chess.SQUARES)
-        if (p := board.piece_at(sq)) is not None
-        and p.piece_type == chess.PAWN
-        and p.color == chess.WHITE
-    ]
-    pawn_b = [
-        idx
-        for idx, sq in enumerate(chess.SQUARES)
-        if (p := board.piece_at(sq)) is not None
-        and p.piece_type == chess.PAWN
-        and p.color == chess.BLACK
-    ]
+    def get_pawn_squares(color: chess.Color) -> list[int]:
+        return [
+            idx
+            for idx, sq in enumerate(chess.SQUARES)
+            if (piece := board.piece_at(sq)) is not None
+            and piece.piece_type == chess.PAWN
+            and piece.color == color
+        ]
 
-    w = len([
-        x
-        for x in range(64)
-        if board.is_attacked_by(chess.WHITE, chess.SQUARES[x]) and x in pawn_w
-    ])
-    b = len([
-        x
-        for x in range(64)
-        if board.is_attacked_by(chess.BLACK, chess.SQUARES[x]) and x in pawn_b
-    ])
+    def count_attacked_pawns(color: chess.Color, pawn_squares: list[int]) -> int:
+        return len([
+            x
+            for x in range(64)
+            if board.is_attacked_by(color, chess.SQUARES[x]) and x in pawn_squares
+        ])
+
+    pawn_w = get_pawn_squares(chess.WHITE)
+    pawn_b = get_pawn_squares(chess.BLACK)
+
+    w = count_attacked_pawns(chess.WHITE, pawn_w)
+    b = count_attacked_pawns(chess.BLACK, pawn_b)
+
     return {"pawn_structure": w - b}
