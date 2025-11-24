@@ -4,6 +4,8 @@ from app.services.preprocessing.config.feature_engineer_config import (
     FeatureEngineerConfig,
 )
 
+TOTAL_BOARD_SQUARES = 64
+
 
 def calculate_center_control(
     board: chess.Board | None, config: FeatureEngineerConfig
@@ -66,10 +68,14 @@ def calculate_position_advantage(board: chess.Board | None) -> dict[str, int]:
         return {"position_advantage": 0}
 
     w = len([
-        x for x in range(64) if board.is_attacked_by(chess.WHITE, chess.SQUARES[x])
+        x
+        for x in range(TOTAL_BOARD_SQUARES)
+        if board.is_attacked_by(chess.WHITE, chess.SQUARES[x])
     ])
     b = len([
-        x for x in range(64) if board.is_attacked_by(chess.BLACK, chess.SQUARES[x])
+        x
+        for x in range(TOTAL_BOARD_SQUARES)
+        if board.is_attacked_by(chess.BLACK, chess.SQUARES[x])
     ])
     return {"position_advantage": w - b}
 
@@ -81,12 +87,12 @@ def calculate_center_advantage(board: chess.Board | None) -> dict[str, int]:
     center = [18, 19, 20, 21, 26, 27, 28, 29, 34, 35, 36, 37, 42, 43, 44, 45]
     w = len([
         x
-        for x in range(64)
+        for x in range(TOTAL_BOARD_SQUARES)
         if board.is_attacked_by(chess.WHITE, chess.SQUARES[x]) and x in center
     ])
     b = len([
         x
-        for x in range(64)
+        for x in range(TOTAL_BOARD_SQUARES)
         if board.is_attacked_by(chess.BLACK, chess.SQUARES[x]) and x in center
     ])
     return {"center_advantage": w - b}
