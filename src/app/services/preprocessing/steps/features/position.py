@@ -109,24 +109,16 @@ def calculate_piece_positions(board: chess.Board | None) -> dict[str, int]:
         }
 
     def piece_position_score(piece_type: int) -> int:
-        w = [
-            idx
-            for idx, sq in enumerate(chess.SQUARES)
-            if (p := board.piece_at(sq)) is not None
-            and p.piece_type == piece_type
-            and p.color == chess.WHITE
-        ]
-        b = [
-            idx
-            for idx, sq in enumerate(chess.SQUARES)
-            if (p := board.piece_at(sq)) is not None
-            and p.piece_type == piece_type
-            and p.color == chess.BLACK
-        ]
+        def attacks_by(color: chess.Color) -> int:
+            return sum(
+                len(list(board.attacks(sq)))
+                for sq in chess.SQUARES
+                if (piece := board.piece_at(sq))
+                and piece.piece_type == piece_type
+                and piece.color == color
+            )
 
-        w_attacks = sum(len(list(board.attacks(chess.SQUARES[ind]))) for ind in w)
-        b_attacks = sum(len(list(board.attacks(chess.SQUARES[ind]))) for ind in b)
-        return w_attacks - b_attacks
+        return attacks_by(chess.WHITE) - attacks_by(chess.BLACK)
 
     return {
         "queen_position": piece_position_score(chess.QUEEN),
