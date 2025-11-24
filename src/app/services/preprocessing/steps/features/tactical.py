@@ -1,8 +1,23 @@
+from collections.abc import Callable
+
 import chess
 
 from app.services.preprocessing.config.feature_engineer_config import (
     FeatureEngineerConfig,
 )
+
+
+def _count_squares_attacked_by(
+    board: chess.Board,
+    color: chess.Color,
+    filter_condition: Callable[[int], bool] | None = None,
+) -> int:
+    return len([
+        x
+        for x in range(64)
+        if board.is_attacked_by(color, chess.SQUARES[x])
+        and (filter_condition is None or filter_condition(x))
+    ])
 
 
 def calculate_attacked_pieces(
@@ -17,32 +32,29 @@ def calculate_attacked_pieces(
             "attacked_diff": 0,
         }
 
-    white_attacked_count = 0
-    white_attacked_value = 0
-    black_attacked_count = 0
-    black_attacked_value = 0
+    def count_attacked_for_color(piece_color: chess.Color) -> tuple[int, int]:
+        attacked_count = 0
+        attacked_value = 0
 
-    for square in chess.SQUARES:
-        piece = board.piece_at(square)
-        if piece:
-            is_attacked = board.is_attacked_by(not piece.color, square)
+        for square in chess.SQUARES:
+            piece = board.piece_at(square)
+            if piece and piece.color == piece_color:
+                is_attacked = board.is_attacked_by(not piece_color, square)
+                if is_attacked:
+                    attacked_count += 1
+                    attacked_value += config.piece_values[piece.piece_type]
 
-            if is_attacked:
-                piece_value = config.piece_values[piece.piece_type]
+        return attacked_count, attacked_value
 
-                if piece.color == chess.WHITE:
-                    white_attacked_count += 1
-                    white_attacked_value += piece_value
-                else:
-                    black_attacked_count += 1
-                    black_attacked_value += piece_value
+    white_count, white_value = count_attacked_for_color(chess.WHITE)
+    black_count, black_value = count_attacked_for_color(chess.BLACK)
 
     return {
-        "white_pieces_attacked": white_attacked_count,
-        "white_attacked_value": white_attacked_value,
-        "black_pieces_attacked": black_attacked_count,
-        "black_attacked_value": black_attacked_value,
-        "attacked_diff": black_attacked_value - white_attacked_value,
+        "white_pieces_attacked": white_count,
+        "white_attacked_value": white_value,
+        "black_pieces_attacked": black_count,
+        "black_attacked_value": black_value,
+        "attacked_diff": black_value - white_value,
     }
 
 
@@ -52,16 +64,9 @@ def calculate_opponent_aggression(board: chess.Board | None) -> dict[str, int]:
 
     MID_SQUARE_INDEX = 31
 
-    w = len([
-        x
-        for x in range(64)
-        if board.is_attacked_by(chess.WHITE, chess.SQUARES[x]) and x > MID_SQUARE_INDEX
-    ])
-    b = len([
-        x
-        for x in range(64)
-        if board.is_attacked_by(chess.BLACK, chess.SQUARES[x]) and x < MID_SQUARE_INDEX
-    ])
+    w = _count_squares_attacked_by(board, chess.WHITE, lambda x: x > MID_SQUARE_INDEX)
+    b = _count_squares_attacked_by(board, chess.BLACK, lambda x: x < MID_SQUARE_INDEX)
+
     return {"opponent_aggression": w - b}
 
 
@@ -69,18 +74,12 @@ def calculate_aggression(board: chess.Board | None) -> dict[str, int]:
     if board is None:
         return {"aggression": 0}
 
-    w = len([
-        x
-        for x in range(64)
-        if board.is_attacked_by(chess.WHITE, chess.SQUARES[x])
-        and x in list(chess.scan_reversed(board.occupied_co[chess.BLACK]))
-    ])
-    b = len([
-        x
-        for x in range(64)
-        if board.is_attacked_by(chess.BLACK, chess.SQUARES[x])
-        and x in list(chess.scan_reversed(board.occupied_co[chess.WHITE]))
-    ])
+    white_occupied = list(chess.scan_reversed(board.occupied_co[chess.BLACK]))
+    black_occupied = list(chess.scan_reversed(board.occupied_co[chess.WHITE]))
+
+    w = _count_squares_attacked_by(board, chess.WHITE, lambda x: x in white_occupied)
+    b = _count_squares_attacked_by(board, chess.BLACK, lambda x: x in black_occupied)
+
     return {"aggression": w - b}
 
 
@@ -88,25 +87,17 @@ def calculate_pieces_protected(board: chess.Board | None) -> dict[str, int]:
     if board is None:
         return {"pieces_protected": 0}
 
-    all_w = [
-        idx
-        for idx, sq in enumerate(chess.SQUARES)
-        if (p := board.piece_at(sq)) is not None and p.color == chess.WHITE
-    ]
-    all_b = [
-        idx
-        for idx, sq in enumerate(chess.SQUARES)
-        if (p := board.piece_at(sq)) is not None and p.color == chess.BLACK
-    ]
+    def get_piece_squares(color: chess.Color) -> list[int]:
+        return [
+            idx
+            for idx, sq in enumerate(chess.SQUARES)
+            if (piece := board.piece_at(sq)) is not None and piece.color == color
+        ]
 
-    w = len([
-        x
-        for x in range(64)
-        if board.is_attacked_by(chess.WHITE, chess.SQUARES[x]) and x in all_w
-    ])
-    b = len([
-        x
-        for x in range(64)
-        if board.is_attacked_by(chess.BLACK, chess.SQUARES[x]) and x in all_b
-    ])
+    white_squares = get_piece_squares(chess.WHITE)
+    black_squares = get_piece_squares(chess.BLACK)
+
+    w = _count_squares_attacked_by(board, chess.WHITE, lambda x: x in white_squares)
+    b = _count_squares_attacked_by(board, chess.BLACK, lambda x: x in black_squares)
+
     return {"pieces_protected": w - b}
