@@ -27,6 +27,8 @@ from .features.tactical import (
     calculate_pieces_protected,
 )
 
+MOVES_PER_TURN = 2
+
 
 def add_features(df: pl.DataFrame, config: FeatureEngineerConfig) -> pl.DataFrame:
     features_list: list[dict[str, float]] = []
@@ -67,7 +69,7 @@ def _get_board_at_move(moves: str, move_number: int) -> chess.Board | None:
     for move in game.mainline_moves():
         board.push(move)
         move_count += 1
-        if move_count == move_number * 2:
+        if move_count == move_number * MOVES_PER_TURN:
             return board
 
     return board if move_count > 0 else None
