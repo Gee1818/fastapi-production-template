@@ -4,20 +4,23 @@ from fastapi import status
 from fastapi.testclient import TestClient
 from syrupy.assertion import SnapshotAssertion
 
-dummy_data = """result,whiteElo,blackElo
--1,1706,1671
-1,2262,2191
--1,2279,2339
-0,971,1040
-"""
+from tests.fixtures.chess_data import get_valid_chess_data
 
 
 def test_train_endpoint_success(
     client: TestClient, snapshot: SnapshotAssertion
 ) -> None:
+    dummy_data = get_valid_chess_data()
+
     response = client.post(
         "/train/train",
-        files={"file": ("test.csv", io.BytesIO(dummy_data.encode()), "text/csv")},
+        files={
+            "file": (
+                "test.pgn",
+                io.BytesIO(dummy_data.encode()),
+                "application/x-chess-pgn",
+            )
+        },
     )
 
     assert response.status_code == status.HTTP_200_OK

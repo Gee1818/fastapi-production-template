@@ -6,16 +6,12 @@ from dependency_injector.wiring import Provide, inject
 
 from app.services.prediction import PredictionService
 from app.settings import Settings
+from tests.fixtures.chess_data import get_valid_chess_data
 
 
 @pytest.fixture
 def valid_chess_data() -> str:
-    return """result,whiteElo,blackElo
--1,1706,1671
-1,2262,2191
--1,2279,2339
-0,971,1040
-"""
+    return get_valid_chess_data()
 
 
 @pytest.fixture

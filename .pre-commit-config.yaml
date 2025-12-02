@@ -1,11 +1,11 @@
 repos:
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.9.0"
+    rev: "0.9.11"
     hooks:
     -   id: uv-lock
 
 -   repo: https://gitlab.com/vojko.pribudic.foss/pre-commit-update
-    rev: v0.8.0
+    rev: v0.9.0
     hooks:
     -   id: pre-commit-update
 
@@ -19,12 +19,12 @@ repos:
     -   id: debug-statements
 
 -   repo: https://github.com/gitleaks/gitleaks
-    rev: "v8.28.0"
+    rev: "v8.29.1"
     hooks:
     -   id: gitleaks
 
 -   repo: https://github.com/PyCQA/bandit
-    rev: "1.8.6"
+    rev: "1.9.2"
     hooks:
     -   id: bandit
         args:
@@ -32,12 +32,12 @@ repos:
         -   "pyproject.toml"
 
 -   repo: https://gitlab.com/vojko.pribudic.foss/pre-commit-update
-    rev: v0.8.0
+    rev: v0.9.0
     hooks:
     -   id: pre-commit-update
 
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.14.0"
+    rev: "v0.14.6"
     hooks:
     -   id: ruff-format
     -   id: ruff-check
@@ -45,11 +45,12 @@ repos:
         -   "--exit-non-zero-on-fix"
 
 -   repo: https://github.com/pycqa/pylint
-    rev: "v3.3.9"
+    rev: "v4.0.3"
     hooks:
     -   id: pylint
         additional_dependencies:
         -   "dependency-injector>=4.48.1"
+        -   "chess>=1.11.2"
         -   "fastapi==0.116.1"
         -   "joblib>=1.5.1"
         -   "pydantic-settings>=2.10.1"
@@ -74,6 +75,7 @@ repos:
         additional_dependencies:
         -   "dependency-injector>=4.48.1"
         -   "fastapi==0.116.1"
+        -   "chess>=1.11.2"
         -   "joblib>=1.5.1"
         -   "joblib-stubs==1.5.0.1.20250510"
         -   "pydantic-settings>=2.10.1"
@@ -115,6 +117,7 @@ repos:
         -   "mypy==1.15.0"
         -   "dependency-injector>=4.48.1"
         -   "fastapi==0.116.1"
+        -   "chess>=1.11.2"
         -   "joblib>=1.5.1"
         -   "joblib-stubs==1.5.0.1.20250510"
         -   "pydantic-settings>=2.10.1"
@@ -134,7 +137,7 @@ repos:
         -   "pandera>=0.26.1"
         -   "polars>=1.33.1"
 -   repo: https://github.com/kynan/nbstripout
-    rev: "0.8.1"
+    rev: "0.8.2"
     hooks:
     -   id: nbstripout
 
