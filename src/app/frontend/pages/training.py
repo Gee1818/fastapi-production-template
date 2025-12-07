@@ -40,7 +40,7 @@ def training_page() -> None:
                 if response.ok:
                     result = response.json()
                     st.success("✅ Model trained successfully!")
-                    st.json(result)
+                    st.markdown(f"```\n{result['message']}\n```")
                 else:
                     st.error(f"❌ Training failed: {response.status_code}")
 
