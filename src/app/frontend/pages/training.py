@@ -1,3 +1,4 @@
+import polars as pl
 import requests
 import streamlit as st
 
@@ -8,20 +9,17 @@ def training_page() -> None:
     st.write("# Model Training Page")
     st.write("Upload a PGN file to train the chess game prediction model.")
 
-    # File uploader
     uploaded_file = st.file_uploader(
         "Choose a PGN file",
         type=["pgn"],
         help="Upload a chess games file in PGN format",
     )
 
-    # Train button
     if st.button("Train Model", type="primary", disabled=uploaded_file is None):
         if uploaded_file is None:
             st.warning("Please upload a file first.")
             return
 
-        # Show loading spinner
         with st.spinner("Training model... This may take a few minutes."):
             try:
                 # Prepare the file for upload
@@ -33,19 +31,20 @@ def training_page() -> None:
                     )
                 }
 
-                # Make POST request to training endpoint
                 response = requests.post(API_BASE_URL, files=files, timeout=3000)
+                result = response.json()
 
-                # Handle response
+                df = pl.DataFrame({
+                    "Response Key": list(result.keys()),
+                    "Value": [str(v) for v in result.values()],
+                })
+
                 if response.ok:
-                    result = response.json()
                     st.success("✅ Model trained successfully!")
-                    st.markdown(f"```\n{result['message']}\n```")
+
                 else:
                     st.error(f"❌ Training failed: {response.status_code}")
-
-                    error_detail = response.json()
-                    st.error(f"Error details: {error_detail}")
+                st.dataframe(df)  # pyright: ignore[reportUnknownMemberType]
 
             except requests.exceptions.Timeout:
                 st.error(
