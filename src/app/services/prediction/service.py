@@ -51,6 +51,6 @@ class PredictionService(BaseModel):
         predictions = self.model.predict_proba(X)
         logger.info("Predictions generated successfully")
         logger.info("Number of predictions: %s", len(predictions))  # pyright: ignore[reportArgumentType]
-        logger.info("Prediction results: %s", predictions)
+        logger.info("Prediction results: %s", predictions[:5])  # pyright: ignore[reportIndexIssue, reportUnknownArgumentType]
 
-        return self.model.predict_proba(X)  # pyright: ignore[reportReturnType]
+        return predictions  # pyright: ignore[reportReturnType]
