@@ -11,7 +11,7 @@ from sklearn.model_selection import (
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
-from app.domain.ml_model import MLModel
+from app.domain.ml_model import MLModel, SKLearnModelAdapter
 from app.services.helper import save_model
 from app.services.preprocessing.config.feature_engineer_config import (
     FeatureEngineerConfig,
@@ -107,9 +107,11 @@ class TrainingService(BaseModel):
 
         X_train, X_test, y_train, _y_test = train_test_split(  # pyright: ignore[reportUnknownVariableType]
             X, y, test_size=0.2, random_state=42, stratify=y
-        )  # pyright: ignore[reportUnknownVariableType]
+        )
         pipeline.fit(X_train, y_train)  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
-        save_model(pipeline, self.model_path)
+        adapted_pipeline = SKLearnModelAdapter(pipeline)
+        save_model(adapted_pipeline, self.model_path)
+
         pipeline.predict(X_test)  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
 
         return pipeline

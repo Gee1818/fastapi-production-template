@@ -1,7 +1,9 @@
 import logging
 from pathlib import Path
 
+import numpy as np
 from fastapi import UploadFile
+from numpy.typing import NDArray
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.domain import MLModel
@@ -36,7 +38,7 @@ class PredictionService(BaseModel):
     def model(self) -> MLModel | None:
         return load_model(self.model_path)
 
-    def predict(self, file: UploadFile) -> list[float]:
+    def predict(self, file: UploadFile) -> NDArray[np.float64]:
         if self.model is None:
             raise NoTrainedModelError
         X, _ = run_pipeline(
@@ -50,7 +52,7 @@ class PredictionService(BaseModel):
         logger.info("Generating predictions")
         predictions = self.model.predict_proba(X)
         logger.info("Predictions generated successfully")
-        logger.info("Number of predictions: %s", len(predictions))  # pyright: ignore[reportArgumentType]
-        logger.info("Prediction results: %s", predictions[:5])  # pyright: ignore[reportIndexIssue, reportUnknownArgumentType]
+        logger.info("Number of predictions: %s", len(predictions))
+        logger.info("Prediction results: %s", predictions[:5])
 
         return predictions  # pyright: ignore[reportReturnType]

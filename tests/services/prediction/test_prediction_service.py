@@ -3,7 +3,6 @@ import io
 import pytest
 from fastapi import UploadFile
 
-from app.domain import PredictionInput
 from app.services.prediction import NoTrainedModelError, PredictionService
 from app.services.training import TrainingService
 
@@ -35,12 +34,14 @@ def test_model_property_returns_model_when_exists(
 
 def test_predict_raises_error_when_no_model(
     prediction_service: PredictionService,
+    valid_chess_data: str,
 ) -> None:
     """Test that predict raises NoTrainedModelError when no model exists."""
-    prediction_input = PredictionInput(age=25.0)
+    file_obj = io.BytesIO(valid_chess_data.encode())
+    upload_file = UploadFile(filename="test.csv", file=file_obj)
 
     with pytest.raises(NoTrainedModelError) as exc_info:
-        prediction_service.predict(prediction_input)
+        prediction_service.predict(upload_file)
 
     assert exc_info.value.message == (
         "No trained model found. Please train the model before making predictions."
