@@ -3,7 +3,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide
 from fastapi import Depends
 
-from app.services import PredictionService, TrainingService
+from app.services import PredictionService, TrainingService, UploadService
 
 PredictionServiceDependency = Annotated[
     PredictionService,
@@ -13,4 +13,9 @@ PredictionServiceDependency = Annotated[
 TrainingServiceDependency = Annotated[
     TrainingService,
     Depends(Provide["training_service"]),
+]
+
+UploadServiceDependency = Annotated[
+    UploadService,
+    Depends(Provide["upload_service"]),
 ]
