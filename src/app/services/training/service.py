@@ -1,3 +1,4 @@
+from io import BytesIO
 from pathlib import Path
 
 from fastapi import UploadFile
@@ -29,6 +30,7 @@ from .config_model import ModelConfig
 
 class TrainingService(BaseModel):
     model_path: Path = Field(default=Settings.MODEL_PATH)
+    training_file_path: Path = Field(default=Settings.UPLOAD_DIRECTORY / "train.pgn")
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -36,6 +38,13 @@ class TrainingService(BaseModel):
     mapping_config: MappingConfig = MappingConfig()
     feature_engineer_config: FeatureEngineerConfig = FeatureEngineerConfig()
     selection_config: SelectionConfig = SelectionConfig()
+
+    @staticmethod
+    def _create_uploadfile_from_path(file_path: Path, filename: str) -> UploadFile:
+        with Path(file_path).open("rb") as f:
+            file_content = f.read()
+            file_stream = BytesIO(file_content)
+        return UploadFile(filename=filename, file=file_stream)
 
     @staticmethod
     def build_pipeline(
@@ -84,7 +93,16 @@ class TrainingService(BaseModel):
             memory=memory,
         )
 
-    def train(self, file: UploadFile) -> MLModel:
+    def train(self) -> MLModel:
+        if not self.training_file_path.exists():
+            msg = f"Training file not found at {self.training_file_path}"
+            raise FileNotFoundError(msg)
+
+        # Create UploadFile from the local file
+        file = self._create_uploadfile_from_path(
+            self.training_file_path, self.training_file_path.name
+        )
+
         X, y = run_pipeline(
             file=file,
             filter_config=self.filter_config,
