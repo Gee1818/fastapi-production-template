@@ -1,7 +1,5 @@
-from io import BytesIO
 from pathlib import Path
 
-from fastapi import UploadFile
 from joblib import Memory
 from pydantic import BaseModel, ConfigDict, Field
 from sklearn.compose import ColumnTransformer
@@ -14,15 +12,6 @@ from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
 from app.domain.ml_model import MLModel
 from app.services.helper import save_model
-from app.services.preprocessing.config.feature_engineer_config import (
-    FeatureEngineerConfig,
-)
-from app.services.preprocessing.config.feature_selection_config import (
-    SelectionConfig,
-)
-from app.services.preprocessing.config.filter_config import FilterConfig
-from app.services.preprocessing.config.mapping_config import MappingConfig
-from app.services.preprocessing.steps.step_pipeline import run_pipeline
 from app.settings import Settings
 
 from .config_model import ModelConfig
@@ -30,21 +19,8 @@ from .config_model import ModelConfig
 
 class TrainingService(BaseModel):
     model_path: Path = Field(default=Settings.MODEL_PATH)
-    training_file_path: Path = Field(default=Settings.UPLOAD_DIRECTORY / "train.pgn")
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    filter_config: FilterConfig = FilterConfig()
-    mapping_config: MappingConfig = MappingConfig()
-    feature_engineer_config: FeatureEngineerConfig = FeatureEngineerConfig()
-    selection_config: SelectionConfig = SelectionConfig()
-
-    @staticmethod
-    def _create_uploadfile_from_path(file_path: Path, filename: str) -> UploadFile:
-        with Path(file_path).open("rb") as f:
-            file_content = f.read()
-            file_stream = BytesIO(file_content)
-        return UploadFile(filename=filename, file=file_stream)
 
     @staticmethod
     def build_pipeline(
@@ -93,23 +69,15 @@ class TrainingService(BaseModel):
             memory=memory,
         )
 
-    def train(self) -> MLModel:
-        if not self.training_file_path.exists():
-            msg = f"Training file not found at {self.training_file_path}"
+    def train(self, training_file_path: Path) -> MLModel:
+
+        self.file_path = training_file_path
+
+        if not self.file_path.exists():
+            msg = f"Training file not found at {self.file_path}"
             raise FileNotFoundError(msg)
 
-        # Create UploadFile from the local file
-        file = self._create_uploadfile_from_path(
-            self.training_file_path, self.training_file_path.name
-        )
-
-        X, y = run_pipeline(
-            file=file,
-            filter_config=self.filter_config,
-            mapping_config=self.mapping_config,
-            feature_engineer_config=self.feature_engineer_config,
-            selection_config=self.selection_config,
-        )
+        self._create_uploadfile_from_path(self.file_path, self.file_path.name)
 
         ohe_cols = ["Event", "TimeControl", "Termination"]
 

@@ -1,6 +1,5 @@
 import logging
 
-import polars as pl
 from fastapi import UploadFile
 from pandera.errors import SchemaError
 
@@ -34,7 +33,7 @@ def run_pipeline(
     mapping_config: MappingConfig,
     feature_engineer_config: FeatureEngineerConfig,
     selection_config: SelectionConfig,
-) -> tuple[pl.DataFrame, pl.Series]:
+) -> str:
     logger = logging.getLogger(__name__)
     logger.info("Starting preprocessing pipeline")
 
@@ -58,7 +57,8 @@ def run_pipeline(
     df = add_features(df, feature_engineer_config)
 
     logger.info("Selecting features")
-    X, y = select_features(df, selection_config)
+    msg = select_features(df, selection_config)
 
     logger.info("Preprocessing pipeline completed successfully")
-    return X, y
+    logger.info("Processed data saved at: %s", msg)
+    return msg

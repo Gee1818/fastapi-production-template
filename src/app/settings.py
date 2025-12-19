@@ -24,6 +24,10 @@ class _Settings(BaseSettings):
         return upload_directory
 
     @property
+    def DEFAULT_TRAINING_FILE(self) -> Path:
+        return self.UPLOAD_DIRECTORY / "train.csv"
+
+    @property
     def MODEL_PATH(self) -> Path:
         return self.MODEL_DIRECTORY / "model.joblib"
 
