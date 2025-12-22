@@ -32,4 +32,8 @@ class UploadService(BaseModel):
             selection_config=self.selection_config,
         )
 
-        return {"file_path": str(file.file), "message": msg}
+        return {
+            "message": msg["message"],
+            "total_features": msg["total_features"],
+            "total_rows": msg["total_rows"],
+        }

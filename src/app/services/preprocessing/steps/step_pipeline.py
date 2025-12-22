@@ -33,7 +33,7 @@ def run_pipeline(
     mapping_config: MappingConfig,
     feature_engineer_config: FeatureEngineerConfig,
     selection_config: SelectionConfig,
-) -> str:
+) -> dict[str, str | int]:
     logger = logging.getLogger(__name__)
     logger.info("Starting preprocessing pipeline")
 

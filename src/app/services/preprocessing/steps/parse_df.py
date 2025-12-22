@@ -84,7 +84,8 @@ def _count_moves(moves: str) -> int:
 
 def _add_move_count(df: pl.DataFrame) -> pl.DataFrame:
     return df.with_columns(
-        pl.col("Moves")
+        pl
+        .col("Moves")
         .map_elements(_count_moves, return_dtype=pl.Int64)
         .alias("NumMoves")
     )

@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import polars as pl
 from joblib import Memory
 from pydantic import BaseModel, ConfigDict, Field
 from sklearn.compose import ColumnTransformer
@@ -12,6 +13,7 @@ from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
 from app.domain.ml_model import MLModel
 from app.services.helper import save_model
+from app.services.preprocessing.steps.feature_target_split import split_features_target
 from app.settings import Settings
 
 from .config_model import ModelConfig
@@ -71,13 +73,12 @@ class TrainingService(BaseModel):
 
     def train(self, training_file_path: Path) -> MLModel:
 
-        self.file_path = training_file_path
-
-        if not self.file_path.exists():
-            msg = f"Training file not found at {self.file_path}"
+        if not training_file_path.exists():
+            msg = f"Training file not found at {training_file_path}"
             raise FileNotFoundError(msg)
+        df = pl.read_csv(training_file_path)
 
-        self._create_uploadfile_from_path(self.file_path, self.file_path.name)
+        X, y = split_features_target(df)
 
         ohe_cols = ["Event", "TimeControl", "Termination"]
 
