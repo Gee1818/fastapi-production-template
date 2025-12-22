@@ -34,6 +34,6 @@ class UploadService(BaseModel):
 
         return {
             "message": msg["message"],
-            "total_features": msg["total_features"],
-            "total_rows": msg["total_rows"],
+            "totalFeatures": msg["total_features"],
+            "totalRows": msg["total_rows"],
         }

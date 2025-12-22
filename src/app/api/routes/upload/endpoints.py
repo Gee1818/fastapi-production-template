@@ -16,5 +16,5 @@ def train(
     file: Annotated[UploadFile, File(...)],
     upload_service: UploadServiceDependency,
 ) -> UploadResponse:
-    upload_service.save_file(file)
-    return UploadResponse()
+    result = upload_service.save_file(file)
+    return UploadResponse(**result)  # pyright: ignore[reportArgumentType]
