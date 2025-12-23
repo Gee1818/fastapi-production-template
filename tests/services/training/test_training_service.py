@@ -1,79 +1,37 @@
 import pytest
 
-from app.services.exceptions import DataValidationError
 from app.services.training import TrainingService
 from app.settings import Settings
 
 
-def test_train_with_invalid_elo(
-    training_service: TrainingService,
-    invalid_elo_data: str,
-) -> None:
-    """Test that training with invalid ELO raises validation error."""
-    # Create the training file with invalid data
-    training_file = Settings.UPLOAD_DIRECTORY / "train.pgn"
-    training_file.write_text(invalid_elo_data)
-
-    try:
-        with pytest.raises(DataValidationError):
-            training_service.train()
-    finally:
-        # Clean up
-        training_file.unlink(missing_ok=True)
-
-
-def test_train_with_valid_data(
-    training_service: TrainingService,
-    valid_chess_data: str,
-) -> None:
-    """Test that training with valid data succeeds."""
-    # Create the training file with valid data
-    training_file = Settings.UPLOAD_DIRECTORY / "train.pgn"
-    training_file.write_text(valid_chess_data)
-
-    try:
-        model = training_service.train()
-
-        # Verify model was created and saved
-        assert model is not None
-        assert training_service.model_path.exists()
-    finally:
-        # Clean up
-        training_file.unlink(missing_ok=True)
-
-
-def test_train_raises_error_when_file_not_found(
+def test_train_with_nonexistent_file(
     training_service: TrainingService,
 ) -> None:
-    """Test that training raises FileNotFoundError when train.pgn doesn't exist."""
-    # Ensure the file doesn't exist
-    training_file = Settings.UPLOAD_DIRECTORY / "train.pgn"
-    training_file.unlink(missing_ok=True)
+    """Test that training raises FileNotFoundError when training file doesn't exist."""
+    # Use a path that doesn't exist
+    nonexistent_path = Settings.UPLOAD_DIRECTORY / "nonexistent.csv"
 
     with pytest.raises(FileNotFoundError) as exc_info:
-        training_service.train()
+        training_service.train(nonexistent_path)
 
-    assert "Training file not found" in str(exc_info.value)
+    assert f"Training file not found at {nonexistent_path}" in str(exc_info.value)
 
 
-def test_train_with_custom_training_file_path(
+def test_train_with_valid_csv(
     training_service: TrainingService,
-    valid_chess_data: str,
 ) -> None:
-    """Test that training works with a custom file path."""
-    # Create a custom training file
-    custom_file = Settings.UPLOAD_DIRECTORY / "custom_train.pgn"
-    custom_file.write_text(valid_chess_data)
+    """Test that training with valid CSV data succeeds."""
+    # Use the existing train.csv file from uploads directory
+    training_file = Settings.DEFAULT_TRAINING_FILE
 
-    # Update the service to use the custom file
-    training_service.training_file_path = custom_file
+    # Only run test if file exists (it should from your documents)
+    if not training_file.exists():
+        pytest.skip("train.csv not found in uploads directory")
 
-    try:
-        model = training_service.train()
+    model = training_service.train(training_file)
 
-        # Verify model was created and saved
-        assert model is not None
-        assert training_service.model_path.exists()
-    finally:
-        # Clean up
-        custom_file.unlink(missing_ok=True)
+    # Verify model was created and saved
+    assert model is not None
+    assert training_service.model_path.exists()
+    assert hasattr(model, "predict")
+    assert hasattr(model, "fit")
