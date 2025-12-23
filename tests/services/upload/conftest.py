@@ -1,3 +1,5 @@
+from collections.abc import Generator
+
 import pytest
 
 from app.services.upload import UploadService
@@ -21,7 +23,7 @@ def invalid_elo_data() -> str:
 
 
 @pytest.fixture(autouse=True)
-def cleanup_train_csv() -> None:
+def cleanup_train_csv() -> Generator[None, None, None]:
     yield
     train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
     train_file.unlink(missing_ok=True)
