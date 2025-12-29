@@ -1,5 +1,6 @@
 import io
 
+import polars as pl
 import pytest
 from fastapi import UploadFile
 
@@ -8,25 +9,22 @@ from app.services.upload import UploadService
 from app.settings import Settings
 
 
-def test_save_file_with_valid_pgn(
-    upload_service: UploadService,
-    valid_chess_data: str,
+def test_save_file_success(
+    valid_upload_file: UploadFile,
 ) -> None:
-    """Test that save_file processes valid PGN data successfully."""
-    file_obj = io.BytesIO(valid_chess_data.encode())
-    upload_file = UploadFile(filename="test.pgn", file=file_obj)
+    """Test successful file upload and processing."""
+    # Arrange
+    service = UploadService()
 
-    result = upload_service.save_file(upload_file)
+    # Act
+    result = service.save_file(valid_upload_file)
 
-    # Verify result structure
+    # Assert
     assert "message" in result
     assert "totalFeatures" in result
     assert "totalRows" in result
 
-    # Verify message content
     assert result["message"] == "Feature selection completed"
-
-    # Verify numeric values
     assert isinstance(result["totalFeatures"], int)
     assert isinstance(result["totalRows"], int)
     assert result["totalFeatures"] > 0
@@ -37,51 +35,116 @@ def test_save_file_with_valid_pgn(
     assert train_file.exists()
 
 
-def test_save_file_with_invalid_elo(
-    upload_service: UploadService,
-    invalid_elo_data: str,
+def test_save_file_invalid_elo_fails(
+    invalid_elo_upload_file: UploadFile,
 ) -> None:
-    """Test that save_file raises DataValidationError for invalid ELO ratings."""
-    file_obj = io.BytesIO(invalid_elo_data.encode())
-    upload_file = UploadFile(filename="invalid.pgn", file=file_obj)
+    """Test that file with invalid ELO ratings raises DataValidationError."""
+    # Arrange
+    service = UploadService()
 
+    # Act & Assert
     with pytest.raises(DataValidationError) as exc_info:
-        upload_service.save_file(upload_file)
+        service.save_file(invalid_elo_upload_file)
 
     assert "Data validation failed" in exc_info.value.message
+    assert "WhiteElo" in exc_info.value.message or "BlackElo" in exc_info.value.message
 
 
-def test_save_file_with_minimal_valid_game(
-    upload_service: UploadService,
+def test_save_file_creates_correct_structure(
+    valid_upload_file: UploadFile,
 ) -> None:
-    """Test that save_file works with a minimal valid game."""
-    minimal_pgn = """[Event "Rated Blitz game"]
-[Site "https://lichess.org/test"]
-[Date "2025.07.01"]
-[Round "-"]
-[White "Player1"]
-[Black "Player2"]
-[Result "1-0"]
-[UTCDate "2025.07.01"]
-[UTCTime "00:00:00"]
-[WhiteElo "1500"]
-[BlackElo "1500"]
-[WhiteRatingDiff "+6"]
-[BlackRatingDiff "-6"]
-[ECO "A00"]
-[Opening "Test Opening"]
-[TimeControl "180+0"]
-[Termination "Normal"]
+    """Test that saved file has correct column structure."""
+    # Arrange
+    service = UploadService()
 
-1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Na5 10. Bc2 c5 11. d4 Qc7 12. Nbd2 cxd4 13. cxd4 Nc6 14. Nb3 a5 15. Be3 a4 1-0
-"""
+    # Act
+    service.save_file(valid_upload_file)
 
-    file_obj = io.BytesIO(minimal_pgn.encode())
-    upload_file = UploadFile(filename="minimal.pgn", file=file_obj)
+    # Assert
 
-    result = upload_service.save_file(upload_file)
+    train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
+    df = pl.read_csv(train_file)
 
-    # Should process successfully (might be 0 rows if filtered out)
-    assert "message" in result
-    assert "totalFeatures" in result
-    assert "totalRows" in result
+    # Check for expected columns
+    expected_columns = [
+        "Event",
+        "Result",
+        "WhiteElo",
+        "BlackElo",
+        "ECO",
+        "Opening",
+        "TimeControl",
+        "Termination",
+        "white_material",
+        "black_material",
+        "material_diff",
+    ]
+
+    for col in expected_columns:
+        assert col in df.columns, f"Column {col} missing from output"
+
+    # Check that filtered columns are not present
+    filtered_columns = ["Site", "Date", "Round", "White", "Black", "Moves"]
+    for col in filtered_columns:
+        assert col not in df.columns, f"Column {col} should be filtered out"
+
+
+def test_save_file_filters_data_correctly(
+    valid_upload_file: UploadFile,
+) -> None:
+    """Test that file processing applies filters correctly."""
+    # Arrange
+    service = UploadService()
+
+    # Act
+    service.save_file(valid_upload_file)
+
+    # Assert - should have filtered data
+
+    train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
+    df = pl.read_csv(train_file)
+
+    # All rows should have valid ELO ratings
+    assert df["WhiteElo"].min() >= 1400
+    assert df["WhiteElo"].max() <= 2800
+    assert df["BlackElo"].min() >= 1400
+    assert df["BlackElo"].max() <= 2800
+
+    # All rows should have valid events
+    valid_events = ["Blitz", "Rapid", "Classical"]
+    assert all(event in valid_events for event in df["Event"].unique())
+
+
+def test_save_file_empty_after_filtering(
+    wrong_event_type_pgn: str,
+) -> None:
+    """Test handling when all games are filtered out."""
+
+    service = UploadService()
+    file_obj = io.BytesIO(wrong_event_type_pgn.encode())
+    upload_file = UploadFile(filename="wrong_event.pgn", file=file_obj)
+
+    result = service.save_file(upload_file)
+
+    assert result["totalRows"] == 0
+    assert result["totalFeatures"] > 0
+
+
+def test_save_file_preserves_result_mapping(
+    valid_upload_file: UploadFile,
+) -> None:
+    """Test that result values are properly mapped."""
+    # Arrange
+    service = UploadService()
+
+    # Act
+    service.save_file(valid_upload_file)
+
+    # Assert
+
+    train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
+    df = pl.read_csv(train_file)
+
+    # Result should be mapped to -1, 0, 1
+    unique_results = df["Result"].unique().sort()
+    assert all(result in {-1, 0, 1} for result in unique_results)

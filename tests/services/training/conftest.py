@@ -6,7 +6,7 @@ from dependency_injector.wiring import Provide, inject
 
 from app.services.training import TrainingService
 from app.settings import Settings
-from tests.fixtures.chess_data import get_invalid_elo_data, get_valid_chess_data
+from tests.fixtures.chess_data import invalid_elo_pgn, valid_pgn_data
 
 
 @pytest.fixture
@@ -29,9 +29,9 @@ def training_service(
 
 @pytest.fixture
 def valid_chess_data() -> str:
-    return get_valid_chess_data()
+    return valid_pgn_data()
 
 
 @pytest.fixture
 def invalid_elo_data() -> str:
-    return get_invalid_elo_data()
+    return invalid_elo_pgn()
