@@ -99,8 +99,6 @@ def test_save_file_filters_data_correctly(
     # Act
     service.save_file(valid_upload_file)
 
-    # Assert - should have filtered data
-
     train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
     df = pl.read_csv(train_file)
 
@@ -120,14 +118,17 @@ def test_save_file_empty_after_filtering(
 ) -> None:
     """Test handling when all games are filtered out."""
 
+    # Arrange
     service = UploadService()
     file_obj = io.BytesIO(wrong_event_type_pgn.encode())
     upload_file = UploadFile(filename="wrong_event.pgn", file=file_obj)
 
+    # Act
     result = service.save_file(upload_file)
 
+    # Assert - should complete but with 0 rows
     assert result["totalRows"] == 0
-    assert result["totalFeatures"] > 0
+    assert result["totalFeatures"] > 0  # Still has columns
 
 
 def test_save_file_preserves_result_mapping(

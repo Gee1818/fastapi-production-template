@@ -1,3 +1,5 @@
+"""Tests for TrainingService."""
+
 from pathlib import Path
 
 import polars as pl
@@ -13,10 +15,12 @@ from app.services.training import TrainingService
 def test_train_with_nonexistent_file_fails(
     test_model_path: Path,
 ) -> None:
-
+    """Test that training raises FileNotFoundError when file doesn't exist."""
+    # Arrange
     service = TrainingService(model_path=test_model_path)
     nonexistent_path = Path("/nonexistent/path/train.csv")
 
+    # Act & Assert
     with pytest.raises(FileNotFoundError) as exc_info:
         service.train(nonexistent_path)
 
@@ -103,7 +107,8 @@ def test_train_overwrites_existing_model(
 
 
 def test_build_pipeline_structure() -> None:
-
+    """Test that build_pipeline creates correct pipeline structure."""
+    # Arrange
     numeric_cols = ["white_material", "black_material"]
     ordinal_cols = ["ECO", "Opening"]
     ohe_cols = ["Event", "TimeControl"]
@@ -142,6 +147,8 @@ def test_build_pipeline_structure() -> None:
 
 
 def test_build_pipeline_with_correct_columns() -> None:
+    """Test that transformers are applied to correct columns."""
+    # Arrange
     numeric_cols = ["col1", "col2"]
     ordinal_cols = ["col3"]
     ohe_cols = ["col4", "col5"]
@@ -155,10 +162,7 @@ def test_build_pipeline_with_correct_columns() -> None:
 
     # Assert
     preprocessor = pipeline.steps[0][1]
-    transformers = {
-        name: (transformer, cols)
-        for name, transformer, cols in preprocessor.transformers
-    }
+    transformers = dict(preprocessor.transformers)
 
     # Check column assignments
     assert transformers["num"][1] == numeric_cols
@@ -171,9 +175,11 @@ def test_trained_model_can_predict(
     test_model_path: Path,
 ) -> None:
     """Test that trained model can make predictions."""
+    # Arrange
     service = TrainingService(model_path=test_model_path)
     model = service.train(sample_train_csv_file)
 
+    # Load the CSV to get feature structure
     df = pl.read_csv(sample_train_csv_file)
     X = df.drop("Result")
 
@@ -188,10 +194,12 @@ def test_trained_model_can_predict(
 
 def test_build_pipeline_random_forest_parameters() -> None:
     """Test that RandomForestClassifier has correct parameters."""
+    # Arrange
     numeric_cols = ["col1"]
     ordinal_cols = ["col2"]
     ohe_cols = ["col3"]
 
+    # Act
     pipeline = TrainingService.build_pipeline(
         numeric_cols=numeric_cols,
         ordinal_cols=ordinal_cols,

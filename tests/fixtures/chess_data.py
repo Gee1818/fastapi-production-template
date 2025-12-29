@@ -141,38 +141,45 @@ WRONG_EVENT_TYPE_PGN = """[Event "Casual Blitz game"]
 
 @pytest.fixture
 def valid_pgn_data() -> str:
+    """Return valid PGN data for testing."""
     return VALID_PGN_DATA
 
 
 @pytest.fixture
 def invalid_elo_pgn() -> str:
+    """Return PGN data with invalid ELO ratings."""
     return INVALID_ELO_PGN
 
 
 @pytest.fixture
 def too_few_moves_pgn() -> str:
+    """Return PGN data with too few moves."""
     return TOO_FEW_MOVES_PGN
 
 
 @pytest.fixture
 def wrong_event_type_pgn() -> str:
+    """Return PGN data with wrong event type."""
     return WRONG_EVENT_TYPE_PGN
 
 
 @pytest.fixture
 def valid_upload_file(valid_pgn_data: str) -> UploadFile:
+    """Create a valid UploadFile for testing."""
     file_obj = io.BytesIO(valid_pgn_data.encode())
     return UploadFile(filename="valid_test.pgn", file=file_obj)
 
 
 @pytest.fixture
 def invalid_elo_upload_file(invalid_elo_pgn: str) -> UploadFile:
+    """Create an UploadFile with invalid ELO data."""
     file_obj = io.BytesIO(invalid_elo_pgn.encode())
     return UploadFile(filename="invalid_elo_test.pgn", file=file_obj)
 
 
 @pytest.fixture
 def test_train_csv_path() -> Generator[Path, None, None]:
+    """Create a temporary path for train.csv during tests."""
     csv_path = Settings.UPLOAD_DIRECTORY / "test_train.csv"
     csv_path.unlink(missing_ok=True)
     yield csv_path
@@ -181,6 +188,7 @@ def test_train_csv_path() -> Generator[Path, None, None]:
 
 @pytest.fixture
 def test_model_path() -> Generator[Path, None, None]:
+    """Create a temporary path for model file during tests."""
     model_path = Settings.MODEL_DIRECTORY / "test_model.joblib"
     model_path.unlink(missing_ok=True)
     yield model_path
@@ -189,6 +197,7 @@ def test_model_path() -> Generator[Path, None, None]:
 
 @pytest.fixture
 def sample_train_csv() -> pl.DataFrame:
+    """Create a sample training DataFrame with proper structure."""
     return pl.DataFrame({
         "Event": ["Blitz", "Blitz", "Rapid"],
         "Result": [1, -1, 0],
@@ -241,14 +250,14 @@ def sample_train_csv_file(
     sample_train_csv: pl.DataFrame,
     test_train_csv_path: Path,
 ) -> Path:
-
+    """Save sample training CSV to temporary file."""
     sample_train_csv.write_csv(test_train_csv_path)
     return test_train_csv_path
 
 
 @pytest.fixture(autouse=True)
 def cleanup_test_files() -> Generator[None, None, None]:
-
+    """Clean up any test files created during testing."""
     yield
 
     # Clean up test files
