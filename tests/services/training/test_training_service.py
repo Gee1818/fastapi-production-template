@@ -1,4 +1,4 @@
-"""Tests for TrainingService."""
+"""Tests for TrainingService - Function-based."""
 
 from pathlib import Path
 
@@ -12,9 +12,7 @@ from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 from app.services.training import TrainingService
 
 
-def test_train_with_nonexistent_file_fails(
-    test_model_path: Path,
-) -> None:
+def test_train_with_nonexistent_file_fails(test_model_path: Path) -> None:
     """Test that training raises FileNotFoundError when file doesn't exist."""
     # Arrange
     service = TrainingService(model_path=test_model_path)
@@ -130,7 +128,10 @@ def test_build_pipeline_structure() -> None:
     assert isinstance(preprocessor, ColumnTransformer)
 
     # Check transformers in ColumnTransformer
-    transformers = dict(preprocessor.transformers)
+    transformers = {
+        name: (transformer, cols)
+        for name, transformer, cols in preprocessor.transformers
+    }
     assert "num" in transformers
     assert "ord" in transformers
     assert "ohe" in transformers
@@ -162,7 +163,10 @@ def test_build_pipeline_with_correct_columns() -> None:
 
     # Assert
     preprocessor = pipeline.steps[0][1]
-    transformers = dict(preprocessor.transformers)
+    transformers = {
+        name: (transformer, cols)
+        for name, transformer, cols in preprocessor.transformers
+    }
 
     # Check column assignments
     assert transformers["num"][1] == numeric_cols

@@ -1,4 +1,4 @@
-"""Tests for /train/train endpoint."""
+"""Tests for /train/train endpoint - Function-based."""
 
 from pathlib import Path
 
@@ -12,7 +12,6 @@ from app.settings import Settings
 def test_train_endpoint_success(
     client: TestClient,
     sample_train_csv_file: Path,
-    test_model_path: Path,
 ) -> None:
     """Test successful model training via endpoint."""
     # Arrange
@@ -21,7 +20,6 @@ def test_train_endpoint_success(
     sample_train_csv_file.rename(default_path)
 
     # Clean up model if exists
-    test_model_path.unlink(missing_ok=True)
     Settings.MODEL_PATH.unlink(missing_ok=True)
 
     # Act
@@ -35,9 +33,7 @@ def test_train_endpoint_success(
     assert data["message"] == "Model trained successfully"
 
 
-def test_train_endpoint_without_training_file_fails(
-    client: TestClient,
-) -> None:
+def test_train_endpoint_without_training_file_fails(client: TestClient) -> None:
     """Test that endpoint fails when train.csv doesn't exist."""
     # Arrange
     train_file = Settings.DEFAULT_TRAINING_FILE

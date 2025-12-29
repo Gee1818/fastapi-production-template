@@ -1,3 +1,5 @@
+"""Tests for UploadService - Function-based."""
+
 import io
 
 import polars as pl
@@ -9,9 +11,7 @@ from app.services.upload import UploadService
 from app.settings import Settings
 
 
-def test_save_file_success(
-    valid_upload_file: UploadFile,
-) -> None:
+def test_save_file_success(valid_upload_file: UploadFile) -> None:
     """Test successful file upload and processing."""
     # Arrange
     service = UploadService()
@@ -35,9 +35,7 @@ def test_save_file_success(
     assert train_file.exists()
 
 
-def test_save_file_invalid_elo_fails(
-    invalid_elo_upload_file: UploadFile,
-) -> None:
+def test_save_file_invalid_elo_fails(invalid_elo_upload_file: UploadFile) -> None:
     """Test that file with invalid ELO ratings raises DataValidationError."""
     # Arrange
     service = UploadService()
@@ -50,9 +48,7 @@ def test_save_file_invalid_elo_fails(
     assert "WhiteElo" in exc_info.value.message or "BlackElo" in exc_info.value.message
 
 
-def test_save_file_creates_correct_structure(
-    valid_upload_file: UploadFile,
-) -> None:
+def test_save_file_creates_correct_structure(valid_upload_file: UploadFile) -> None:
     """Test that saved file has correct column structure."""
     # Arrange
     service = UploadService()
@@ -61,7 +57,6 @@ def test_save_file_creates_correct_structure(
     service.save_file(valid_upload_file)
 
     # Assert
-
     train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
     df = pl.read_csv(train_file)
 
@@ -89,9 +84,7 @@ def test_save_file_creates_correct_structure(
         assert col not in df.columns, f"Column {col} should be filtered out"
 
 
-def test_save_file_filters_data_correctly(
-    valid_upload_file: UploadFile,
-) -> None:
+def test_save_file_filters_data_correctly(valid_upload_file: UploadFile) -> None:
     """Test that file processing applies filters correctly."""
     # Arrange
     service = UploadService()
@@ -99,6 +92,7 @@ def test_save_file_filters_data_correctly(
     # Act
     service.save_file(valid_upload_file)
 
+    # Assert - should have filtered data
     train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
     df = pl.read_csv(train_file)
 
@@ -113,11 +107,8 @@ def test_save_file_filters_data_correctly(
     assert all(event in valid_events for event in df["Event"].unique())
 
 
-def test_save_file_empty_after_filtering(
-    wrong_event_type_pgn: str,
-) -> None:
+def test_save_file_empty_after_filtering(wrong_event_type_pgn: str) -> None:
     """Test handling when all games are filtered out."""
-
     # Arrange
     service = UploadService()
     file_obj = io.BytesIO(wrong_event_type_pgn.encode())
@@ -131,9 +122,7 @@ def test_save_file_empty_after_filtering(
     assert result["totalFeatures"] > 0  # Still has columns
 
 
-def test_save_file_preserves_result_mapping(
-    valid_upload_file: UploadFile,
-) -> None:
+def test_save_file_preserves_result_mapping(valid_upload_file: UploadFile) -> None:
     """Test that result values are properly mapped."""
     # Arrange
     service = UploadService()
@@ -142,7 +131,6 @@ def test_save_file_preserves_result_mapping(
     service.save_file(valid_upload_file)
 
     # Assert
-
     train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
     df = pl.read_csv(train_file)
 
