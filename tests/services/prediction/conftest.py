@@ -6,16 +6,75 @@ from dependency_injector.wiring import Provide, inject
 
 from app.services.prediction import PredictionService
 from app.settings import Settings
-from tests.fixtures.chess_data import valid_pgn_data
 
 
 @pytest.fixture
 def valid_chess_data() -> str:
-    return valid_pgn_data()
+    """Return valid PGN data for testing."""
+    return """[Event "Rated Blitz game"]
+[Site "https://lichess.org/VsUqVhC2"]
+[Date "2025.07.01"]
+[Round "-"]
+[White "my_name_jeff"]
+[Black "xxxgrishaxxx"]
+[Result "0-1"]
+[UTCDate "2025.07.01"]
+[UTCTime "00:00:31"]
+[WhiteElo "1706"]
+[BlackElo "1671"]
+[WhiteRatingDiff "-6"]
+[BlackRatingDiff "+6"]
+[ECO "A43"]
+[Opening "Benoni Defense: Old Benoni"]
+[TimeControl "180+0"]
+[Termination "Normal"]
+
+1. d4 c5 2. e3 e6 3. dxc5 Bxc5 4. Nf3 Nf6 5. c3 Nc6 6. Bb5 a6 7. Bxc6 bxc6 8. O-O d5 9. Nd4 Bd7 10. Qf3 O-O 11. h4 e5 12. Nc2 Bd6 13. h5 e4 14. Qe2 Bg4 15. f3 exf3 16. gxf3 Bxh5 17. e4 dxe4 18. Ne1 exf3 19. Nxf3 Qd7 20. Bg5 Qg4+ 21. Qg2 Qxg2+ 22. Kxg2 Bxf3+ 23. Rxf3 Ne4 24. Be3 h6 25. Nd2 Rfe8 26. Nxe4 Rxe4 27. Bd4 Rae8 28. Raf1 c5 29. Bg1 f6 30. a3 Re2+ 31. Bf2 Rxb2 32. Kh3 Ree2 33. Kg2 c4 34. a4 Bc5 35. Re3 Bxe3 0-1
+
+[Event "Rated Blitz game"]
+[Site "https://lichess.org/dAPM8wzS"]
+[Date "2025.07.01"]
+[Round "-"]
+[White "Lostratega"]
+[Black "abdo0diab2000"]
+[Result "1-0"]
+[UTCDate "2025.07.01"]
+[UTCTime "00:00:31"]
+[WhiteElo "2262"]
+[BlackElo "2191"]
+[WhiteRatingDiff "+5"]
+[BlackRatingDiff "-5"]
+[ECO "A46"]
+[Opening "Indian Defense: Wade-Tartakower Defense"]
+[TimeControl "180+0"]
+[Termination "Normal"]
+
+1. d4 d6 2. Nf3 Nf6 3. c4 d5 4. Nc3 Bg4 5. cxd5 Bxf3 6. exf3 Nxd5 7. Bc4 c6 8. Qb3 Nxc3 9. bxc3 Qb6 10. Bxf7+ Kd8 11. Qe6 Nd7 12. O-O Nf6 13. Bg5 Nd5 14. c4 Nc7 15. Qe4 Qa5 16. Bf4 Kd7 17. Bxc7 Kxc7 18. d5 Rd8 19. dxc6 bxc6 20. Rab1 e5 21. c5 Qxc5 22. Rfc1 Qd6 23. h3 Be7 24. Bb3 Qd4 25. Qxc6+ Kb8 26. Bd5+ Bb4 27. Qb7# 1-0
+
+[Event "Rated Rapid game"]
+[Site "https://lichess.org/aoCEGX3k"]
+[Date "2025.07.01"]
+[Round "-"]
+[White "YarnHugen"]
+[Black "LateralusMind"]
+[Result "0-1"]
+[UTCDate "2025.07.01"]
+[UTCTime "00:00:31"]
+[WhiteElo "2279"]
+[BlackElo "2339"]
+[WhiteRatingDiff "-5"]
+[BlackRatingDiff "+4"]
+[ECO "A46"]
+[Opening "Yusupov-Rubinstein System"]
+[TimeControl "600+0"]
+[Termination "Normal"]
+
+1. d4 Nf6 2. Nf3 e6 3. e3 Be7 4. Bd3 b6 5. O-O Bb7 6. b3 c5 7. Bb2 cxd4 8. e4 O-O 9. Re1 d6 10. Nxd4 Nbd7 11. Nd2 a6 12. a3 Rc8 13. N2f3 Rc7 14. Qd2 Qa8 15. Rad1 Nxe4 16. Bxe4 Bxe4 17. c4 Nf6 18. h3 Rd8 19. Qe3 Bb7 20. Ng5 e5 21. Nde6 fxe6 22. Nxe6 Rcd7 23. Nxd8 Qxd8 24. b4 Qa8 25. g3 Bf3 26. Rd3 Bh1 27. f3 e4 28. fxe4 Bxe4 29. Rd2 Bg6 30. Qe6+ Bf7 31. Bxf6 Bxe6 0-1
+"""
 
 
 @pytest.fixture
-def prediction_model_path() -> Generator[Path]:
+def prediction_model_path() -> Generator[Path, None, None]:
     model_path = Settings.MODEL_DIRECTORY / "prediction_model_test.joblib"
     model_path.unlink(missing_ok=True)
     yield model_path

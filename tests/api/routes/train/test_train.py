@@ -37,24 +37,15 @@ def test_train_endpoint_without_training_file_fails(client: TestClient) -> None:
     """Test that endpoint fails when train.csv doesn't exist."""
     # Arrange
     train_file = Settings.DEFAULT_TRAINING_FILE
-    backup_file = Settings.UPLOAD_DIRECTORY / "train_backup.csv"
 
-    # Backup and remove train.csv if it exists
-    file_existed = train_file.exists()
-    if file_existed:
-        train_file.rename(backup_file)
+    # Ensure file doesn't exist
+    train_file.unlink(missing_ok=True)
 
-    try:
-        # Act
-        response = client.post("/train/train")
+    # Act
+    response = client.post("/train/train")
 
-        # Assert
-        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
-
-    finally:
-        # Restore train.csv if it existed
-        if file_existed and backup_file.exists():
-            backup_file.rename(train_file)
+    # Assert - Should get 500 error for missing file
+    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
 def test_train_endpoint_creates_model_file(
@@ -136,51 +127,52 @@ def test_train_endpoint_with_minimal_csv(
 ) -> None:
     """Test training with minimal valid CSV."""
 
-    # Arrange - Create minimal valid CSV
+    # Arrange - Create minimal valid CSV with enough samples for stratified split
+    # Need at least 15 samples (3 per class * 3 classes, with 20% test = 3 in test)
     minimal_df = pl.DataFrame({
-        "Event": ["Blitz", "Blitz"],
-        "Result": [1, -1],
-        "WhiteElo": [1500, 1600],
-        "BlackElo": [1500, 1600],
-        "ECO": ["A00", "A00"],
-        "Opening": ["Test", "Test"],
-        "TimeControl": ["180+0", "180+0"],
-        "Termination": ["Normal", "Normal"],
-        "white_material": [38, 38],
-        "black_material": [38, 38],
-        "material_diff": [0, 0],
-        "white_pieces_attacked": [3, 3],
-        "white_attacked_value": [7, 7],
-        "black_pieces_attacked": [4, 4],
-        "black_attacked_value": [8, 8],
-        "attacked_diff": [1, 1],
-        "white_center_pieces": [1, 1],
-        "black_center_pieces": [1, 1],
-        "white_center_control": [3, 3],
-        "black_center_control": [3, 3],
-        "center_control_diff": [0, 0],
-        "white_extended_control": [12, 12],
-        "black_extended_control": [11, 11],
-        "extended_control_diff": [1, 1],
-        "white_mobility": [45, 45],
-        "black_mobility": [42, 42],
-        "mobility_diff": [3, 3],
-        "white_weighted_mobility": [195.0, 195.0],
-        "black_weighted_mobility": [0.0, 0.0],
-        "weighted_mobility_diff": [195.0, 195.0],
-        "position_advantage": [-1, -1],
-        "center_advantage": [1, 1],
-        "aggression": [1, 1],
-        "pawn_structure": [-2, -2],
-        "pieces_protected": [-2, -2],
-        "degrees_of_freedom": [3, 3],
-        "opponent_aggression": [3, 3],
-        "queen_position": [4, 4],
-        "knight_position": [0, 0],
-        "bishop_position": [-1, -1],
-        "rook_position": [2, 2],
-        "pawn_position": [0, 0],
-        "dof_x_material": [3306.0, 3306.0],
+        "Event": ["Blitz"] * 5 + ["Rapid"] * 5 + ["Blitz"] * 5,
+        "Result": [1, 1, -1, -1, 0] * 3,
+        "WhiteElo": [1500, 1600, 1700, 1800, 1900] * 3,
+        "BlackElo": [1500, 1600, 1700, 1800, 1900] * 3,
+        "ECO": ["A00", "B00", "C00", "D00", "E00"] * 3,
+        "Opening": ["Test1", "Test2", "Test3", "Test4", "Test5"] * 3,
+        "TimeControl": ["180+0"] * 15,
+        "Termination": ["Normal"] * 15,
+        "white_material": [38] * 15,
+        "black_material": [38] * 15,
+        "material_diff": [0] * 15,
+        "white_pieces_attacked": [3] * 15,
+        "white_attacked_value": [7] * 15,
+        "black_pieces_attacked": [4] * 15,
+        "black_attacked_value": [8] * 15,
+        "attacked_diff": [1] * 15,
+        "white_center_pieces": [1] * 15,
+        "black_center_pieces": [1] * 15,
+        "white_center_control": [3] * 15,
+        "black_center_control": [3] * 15,
+        "center_control_diff": [0] * 15,
+        "white_extended_control": [12] * 15,
+        "black_extended_control": [11] * 15,
+        "extended_control_diff": [1] * 15,
+        "white_mobility": [45] * 15,
+        "black_mobility": [42] * 15,
+        "mobility_diff": [3] * 15,
+        "white_weighted_mobility": [195.0] * 15,
+        "black_weighted_mobility": [0.0] * 15,
+        "weighted_mobility_diff": [195.0] * 15,
+        "position_advantage": [-1] * 15,
+        "center_advantage": [1] * 15,
+        "aggression": [1] * 15,
+        "pawn_structure": [-2] * 15,
+        "pieces_protected": [-2] * 15,
+        "degrees_of_freedom": [3] * 15,
+        "opponent_aggression": [3] * 15,
+        "queen_position": [4] * 15,
+        "knight_position": [0] * 15,
+        "bishop_position": [-1] * 15,
+        "rook_position": [2] * 15,
+        "pawn_position": [0] * 15,
+        "dof_x_material": [3306.0] * 15,
     })
 
     default_path = Settings.DEFAULT_TRAINING_FILE

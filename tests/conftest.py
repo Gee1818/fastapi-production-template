@@ -1,4 +1,4 @@
-"""Global test configuration and fixtures - FINAL VERSION."""
+"""Global test configuration and fixtures - FIXED VERSION."""
 
 import io
 from collections.abc import Generator
@@ -213,64 +213,65 @@ def test_model_path() -> Generator[Path, None, None]:
 
 
 # ============================================================================
-# DataFrame Fixtures
+# DataFrame Fixtures - FIXED WITH MORE DATA
 # ============================================================================
 
 
 @pytest.fixture
 def sample_train_csv() -> pl.DataFrame:
-    """Create a sample training DataFrame with proper structure."""
+    """Create a sample training DataFrame with proper structure and enough samples."""
+    # Need at least 15 samples (to have 3+ per class after 80/20 split with stratification)
     return pl.DataFrame({
-        "Event": ["Blitz", "Blitz", "Rapid", "Blitz", "Rapid", "Blitz"],
-        "Result": [1, -1, 0, 1, -1, 0],
-        "WhiteElo": [2045, 1576, 2315, 2100, 1650, 2250],
-        "BlackElo": [2126, 1588, 2282, 2050, 1700, 2200],
-        "ECO": ["B56", "A00", "E00", "B56", "A00", "E00"],
+        "Event": ["Blitz"] * 5 + ["Rapid"] * 5 + ["Blitz"] * 5,
+        "Result": [1, 1, -1, -1, 0] * 3,  # Balanced classes
+        "WhiteElo": [2045, 1576, 2315, 2100, 1650] * 3,
+        "BlackElo": [2126, 1588, 2282, 2050, 1700] * 3,
+        "ECO": ["B56", "A00", "E00", "C50", "D20"] * 3,
         "Opening": [
             "Sicilian Defense",
             "Hungarian Opening",
             "Catalan Opening",
-            "Sicilian Defense",
-            "Hungarian Opening",
-            "Catalan Opening",
-        ],
-        "TimeControl": ["300+0", "180+0", "180+0", "300+0", "180+0", "180+0"],
-        "Termination": ["Normal", "Normal", "Normal", "Normal", "Normal", "Normal"],
-        "white_material": [38, 38, 38, 37, 38, 38],
-        "black_material": [38, 37, 38, 38, 38, 37],
-        "material_diff": [0, 1, 0, -1, 0, 1],
-        "white_pieces_attacked": [3, 1, 4, 2, 3, 4],
-        "white_attacked_value": [7, 1, 6, 5, 7, 6],
-        "black_pieces_attacked": [4, 3, 3, 3, 4, 3],
-        "black_attacked_value": [8, 5, 5, 6, 8, 5],
-        "attacked_diff": [1, 4, -1, 2, 1, -1],
-        "white_center_pieces": [1, 0, 1, 1, 0, 2],
-        "black_center_pieces": [1, 1, 2, 1, 1, 1],
-        "white_center_control": [3, 4, 4, 3, 4, 5],
-        "black_center_control": [3, 3, 4, 3, 3, 4],
-        "center_control_diff": [0, 1, 0, 0, 1, 1],
-        "white_extended_control": [12, 14, 10, 11, 13, 12],
-        "black_extended_control": [11, 9, 10, 10, 10, 11],
-        "extended_control_diff": [1, 5, 0, 1, 3, 1],
-        "white_mobility": [45, 46, 40, 43, 45, 41],
-        "black_mobility": [42, 33, 38, 40, 35, 39],
-        "mobility_diff": [3, 13, 2, 3, 10, 2],
-        "white_weighted_mobility": [195.0, 185.0, 142.0, 180.0, 190.0, 150.0],
-        "black_weighted_mobility": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        "weighted_mobility_diff": [195.0, 195.0, 142.0, 180.0, 190.0, 150.0],
-        "position_advantage": [-1, 6, -4, 2, 5, -3],
-        "center_advantage": [1, 5, 0, 1, 4, 1],
-        "aggression": [1, 2, -1, 1, 2, 0],
-        "pawn_structure": [-2, 0, 0, -1, 0, -1],
-        "pieces_protected": [-2, 0, -1, -1, 0, -1],
-        "degrees_of_freedom": [3, 13, 2, 3, 10, 2],
-        "opponent_aggression": [3, 5, -3, 2, 4, -2],
-        "queen_position": [4, 5, 0, 3, 5, 1],
-        "knight_position": [0, 0, 2, 1, 0, 1],
-        "bishop_position": [-1, 1, -2, 0, 1, -1],
-        "rook_position": [2, 0, -3, 1, 0, -2],
-        "pawn_position": [0, 0, 0, 0, 0, 0],
-        "dof_x_material": [3306.0, 2969.0, 2964.0, 3200.0, 3000.0, 2900.0],
+            "Italian Game",
+            "Queen's Gambit Accepted",
+        ]
+        * 3,
+        "TimeControl": ["300+0", "180+0", "180+0", "300+0", "180+0"] * 3,
+        "Termination": ["Normal"] * 15,
+        "white_material": [38, 38, 38, 37, 38] * 3,
+        "black_material": [38, 37, 38, 38, 38] * 3,
+        "material_diff": [0, 1, 0, -1, 0] * 3,
+        "white_pieces_attacked": [3, 1, 4, 2, 3] * 3,
+        "white_attacked_value": [7, 1, 6, 5, 7] * 3,
+        "black_pieces_attacked": [4, 3, 3, 3, 4] * 3,
+        "black_attacked_value": [8, 5, 5, 6, 8] * 3,
+        "attacked_diff": [1, 4, -1, 2, 1] * 3,
+        "white_center_pieces": [1, 0, 1, 1, 0] * 3,
+        "black_center_pieces": [1, 1, 2, 1, 1] * 3,
+        "white_center_control": [3, 4, 4, 3, 4] * 3,
+        "black_center_control": [3, 3, 4, 3, 3] * 3,
+        "center_control_diff": [0, 1, 0, 0, 1] * 3,
+        "white_extended_control": [12, 14, 10, 11, 13] * 3,
+        "black_extended_control": [11, 9, 10, 10, 10] * 3,
+        "extended_control_diff": [1, 5, 0, 1, 3] * 3,
+        "white_mobility": [45, 46, 40, 43, 45] * 3,
+        "black_mobility": [42, 33, 38, 40, 35] * 3,
+        "mobility_diff": [3, 13, 2, 3, 10] * 3,
+        "white_weighted_mobility": [195.0, 185.0, 142.0, 180.0, 190.0] * 3,
+        "black_weighted_mobility": [0.0, 0.0, 0.0, 0.0, 0.0] * 3,
+        "weighted_mobility_diff": [195.0, 195.0, 142.0, 180.0, 190.0] * 3,
+        "position_advantage": [-1, 6, -4, 2, 5] * 3,
+        "center_advantage": [1, 5, 0, 1, 4] * 3,
+        "aggression": [1, 2, -1, 1, 2] * 3,
+        "pawn_structure": [-2, 0, 0, -1, 0] * 3,
+        "pieces_protected": [-2, 0, -1, -1, 0] * 3,
+        "degrees_of_freedom": [3, 13, 2, 3, 10] * 3,
+        "opponent_aggression": [3, 5, -3, 2, 4] * 3,
+        "queen_position": [4, 5, 0, 3, 5] * 3,
+        "knight_position": [0, 0, 2, 1, 0] * 3,
+        "bishop_position": [-1, 1, -2, 0, 1] * 3,
+        "rook_position": [2, 0, -3, 1, 0] * 3,
+        "pawn_position": [0, 0, 0, 0, 0] * 3,
+        "dof_x_material": [3306.0, 2969.0, 2964.0, 3200.0, 3000.0] * 3,
     })
 
 
