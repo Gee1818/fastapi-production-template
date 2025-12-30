@@ -1,5 +1,3 @@
-"""Global test configuration and fixtures - FIXED VERSION."""
-
 import io
 from collections.abc import Generator
 from pathlib import Path
@@ -14,10 +12,6 @@ from app.injections import configure_container
 from app.injections.test import TestContainer
 from app.settings import Settings
 
-# ============================================================================
-# Session Configuration
-# ============================================================================
-
 
 @pytest.fixture(autouse=True, scope="session")
 def injector_override() -> None:
@@ -27,21 +21,11 @@ def injector_override() -> None:
     container.wire(packages=["tests"])
 
 
-# ============================================================================
-# Client Fixture
-# ============================================================================
-
-
 @pytest.fixture
 def client() -> TestClient:
-    """Create FastAPI test client."""
     app = create_app()
     return TestClient(app)
 
-
-# ============================================================================
-# Test Data Constants
-# ============================================================================
 
 VALID_PGN_DATA = """[Event "Rated Blitz game"]
 [Site "https://lichess.org/VsUqVhC2"]
@@ -147,56 +131,35 @@ WRONG_EVENT_TYPE_PGN = """[Event "Casual Blitz game"]
 """
 
 
-# ============================================================================
-# String Data Fixtures
-# ============================================================================
-
-
 @pytest.fixture
 def valid_pgn_data() -> str:
-    """Return valid PGN data for testing."""
     return VALID_PGN_DATA
 
 
 @pytest.fixture
 def invalid_elo_pgn() -> str:
-    """Return PGN data with invalid ELO ratings."""
     return INVALID_ELO_PGN
 
 
 @pytest.fixture
 def wrong_event_type_pgn() -> str:
-    """Return PGN data with wrong event type."""
     return WRONG_EVENT_TYPE_PGN
-
-
-# ============================================================================
-# UploadFile Fixtures
-# ============================================================================
 
 
 @pytest.fixture
 def valid_upload_file(valid_pgn_data: str) -> UploadFile:
-    """Create a valid UploadFile for testing."""
     file_obj = io.BytesIO(valid_pgn_data.encode())
     return UploadFile(filename="valid_test.pgn", file=file_obj)
 
 
 @pytest.fixture
 def invalid_elo_upload_file(invalid_elo_pgn: str) -> UploadFile:
-    """Create an UploadFile with invalid ELO data."""
     file_obj = io.BytesIO(invalid_elo_pgn.encode())
     return UploadFile(filename="invalid_elo_test.pgn", file=file_obj)
 
 
-# ============================================================================
-# Path Fixtures
-# ============================================================================
-
-
 @pytest.fixture
 def test_train_csv_path() -> Generator[Path, None, None]:
-    """Create a temporary path for train.csv during tests."""
     csv_path = Settings.UPLOAD_DIRECTORY / "test_train.csv"
     csv_path.unlink(missing_ok=True)
     yield csv_path
@@ -205,22 +168,14 @@ def test_train_csv_path() -> Generator[Path, None, None]:
 
 @pytest.fixture
 def test_model_path() -> Generator[Path, None, None]:
-    """Create a temporary path for model file during tests."""
     model_path = Settings.MODEL_DIRECTORY / "test_model.joblib"
     model_path.unlink(missing_ok=True)
     yield model_path
     model_path.unlink(missing_ok=True)
 
 
-# ============================================================================
-# DataFrame Fixtures - FIXED WITH MORE DATA
-# ============================================================================
-
-
 @pytest.fixture
 def sample_train_csv() -> pl.DataFrame:
-    """Create a sample training DataFrame with proper structure and enough samples."""
-    # Need at least 15 samples (to have 3+ per class after 80/20 split with stratification)
     return pl.DataFrame({
         "Event": ["Blitz"] * 5 + ["Rapid"] * 5 + ["Blitz"] * 5,
         "Result": [1, 1, -1, -1, 0] * 3,  # Balanced classes
@@ -280,14 +235,8 @@ def sample_train_csv_file(
     sample_train_csv: pl.DataFrame,
     test_train_csv_path: Path,
 ) -> Path:
-    """Save sample training CSV to temporary file."""
     sample_train_csv.write_csv(test_train_csv_path)
     return test_train_csv_path
-
-
-# ============================================================================
-# Cleanup Fixture
-# ============================================================================
 
 
 @pytest.fixture(autouse=True)

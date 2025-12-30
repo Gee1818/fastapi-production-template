@@ -14,7 +14,6 @@ def test_model_property_returns_none_when_no_model_exists(
 def test_predict_raises_error_when_no_model(
     prediction_service: PredictionService,
 ) -> None:
-    """Test that predict raises NoTrainedModelError when no model exists."""
     prediction_input = PredictionInput(age=25.0)
 
     with pytest.raises(NoTrainedModelError) as exc_info:

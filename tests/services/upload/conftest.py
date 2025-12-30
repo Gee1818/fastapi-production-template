@@ -13,7 +13,6 @@ def upload_service() -> UploadService:
 
 @pytest.fixture
 def valid_chess_data() -> str:
-    """Return valid PGN data for testing."""
     return """[Event "Rated Blitz game"]
 [Site "https://lichess.org/VsUqVhC2"]
 [Date "2025.07.01"]
@@ -78,7 +77,6 @@ def valid_chess_data() -> str:
 
 @pytest.fixture
 def invalid_elo_data() -> str:
-    """Return PGN data with invalid ELO ratings."""
     return """[Event "Rated Blitz game"]
 [Site "https://lichess.org/test1"]
 [Date "2025.07.01"]

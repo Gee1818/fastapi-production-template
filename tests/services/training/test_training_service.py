@@ -1,5 +1,3 @@
-"""Tests for TrainingService - Function-based."""
-
 from pathlib import Path
 
 import polars as pl
@@ -13,7 +11,6 @@ from app.services.training import TrainingService
 
 
 def test_train_with_nonexistent_file_fails(test_model_path: Path) -> None:
-    """Test that training raises FileNotFoundError when file doesn't exist."""
     # Arrange
     service = TrainingService(model_path=test_model_path)
     nonexistent_path = Path("/nonexistent/path/train.csv")
@@ -29,14 +26,10 @@ def test_train_success_with_valid_csv(
     sample_train_csv_file: Path,
     test_model_path: Path,
 ) -> None:
-    """Test successful training with valid CSV data."""
-    # Arrange
     service = TrainingService(model_path=test_model_path)
 
-    # Act
     model = service.train(sample_train_csv_file)
 
-    # Assert
     assert model is not None
     assert test_model_path.exists()
     assert hasattr(model, "predict")
@@ -47,7 +40,6 @@ def test_train_creates_model_file(
     sample_train_csv_file: Path,
     test_model_path: Path,
 ) -> None:
-    """Test that training creates a model file on disk."""
     # Arrange
     service = TrainingService(model_path=test_model_path)
     assert not test_model_path.exists()
@@ -64,8 +56,6 @@ def test_train_with_invalid_csv_structure_fails(
     test_train_csv_path: Path,
     test_model_path: Path,
 ) -> None:
-    """Test that training fails with invalid CSV structure."""
-    # Arrange
     service = TrainingService(model_path=test_model_path)
 
     # Create invalid CSV (missing required columns)
@@ -76,7 +66,7 @@ def test_train_with_invalid_csv_structure_fails(
     invalid_df.write_csv(test_train_csv_path)
 
     # Act & Assert
-    with pytest.raises(Exception):  # Will raise KeyError or similar
+    with pytest.raises(Exception):
         service.train(test_train_csv_path)
 
 
@@ -84,34 +74,25 @@ def test_train_overwrites_existing_model(
     sample_train_csv_file: Path,
     test_model_path: Path,
 ) -> None:
-    """Test that training overwrites existing model file."""
-    # Arrange
     service = TrainingService(model_path=test_model_path)
 
-    # First training
     model1 = service.train(sample_train_csv_file)
     first_size = test_model_path.stat().st_size
 
-    # Act - Second training
     model2 = service.train(sample_train_csv_file)
     second_size = test_model_path.stat().st_size
 
-    # Assert
     assert model1 is not None
     assert model2 is not None
     assert test_model_path.exists()
-    # Size might vary slightly but should be similar
     assert abs(first_size - second_size) < first_size * 0.1
 
 
 def test_build_pipeline_structure() -> None:
-    """Test that build_pipeline creates correct pipeline structure."""
-    # Arrange
     numeric_cols = ["white_material", "black_material"]
     ordinal_cols = ["ECO", "Opening"]
     ohe_cols = ["Event", "TimeControl"]
 
-    # Act
     pipeline = TrainingService.build_pipeline(
         numeric_cols=numeric_cols,
         ordinal_cols=ordinal_cols,
@@ -148,27 +129,22 @@ def test_build_pipeline_structure() -> None:
 
 
 def test_build_pipeline_with_correct_columns() -> None:
-    """Test that transformers are applied to correct columns."""
-    # Arrange
     numeric_cols = ["col1", "col2"]
     ordinal_cols = ["col3"]
     ohe_cols = ["col4", "col5"]
 
-    # Act
     pipeline = TrainingService.build_pipeline(
         numeric_cols=numeric_cols,
         ordinal_cols=ordinal_cols,
         ohe_cols=ohe_cols,
     )
 
-    # Assert
     preprocessor = pipeline.steps[0][1]
     transformers = {
         name: (transformer, cols)
         for name, transformer, cols in preprocessor.transformers
     }
 
-    # Check column assignments
     assert transformers["num"][1] == numeric_cols
     assert transformers["ord"][1] == ordinal_cols
     assert transformers["ohe"][1] == ohe_cols
@@ -178,7 +154,6 @@ def test_trained_model_can_predict(
     sample_train_csv_file: Path,
     test_model_path: Path,
 ) -> None:
-    """Test that trained model can make predictions."""
     # Arrange
     service = TrainingService(model_path=test_model_path)
     model = service.train(sample_train_csv_file)
@@ -197,7 +172,6 @@ def test_trained_model_can_predict(
 
 
 def test_build_pipeline_random_forest_parameters() -> None:
-    """Test that RandomForestClassifier has correct parameters."""
     # Arrange
     numeric_cols = ["col1"]
     ordinal_cols = ["col2"]

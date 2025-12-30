@@ -1,5 +1,3 @@
-"""Tests for /train/train endpoint - Function-based."""
-
 from pathlib import Path
 
 import polars as pl
@@ -13,9 +11,6 @@ def test_train_endpoint_success(
     client: TestClient,
     sample_train_csv_file: Path,
 ) -> None:
-    """Test successful model training via endpoint."""
-    # Arrange
-    # Move the sample file to the default location
     default_path = Settings.DEFAULT_TRAINING_FILE
     sample_train_csv_file.rename(default_path)
 
@@ -34,17 +29,12 @@ def test_train_endpoint_success(
 
 
 def test_train_endpoint_without_training_file_fails(client: TestClient) -> None:
-    """Test that endpoint fails when train.csv doesn't exist."""
-    # Arrange
     train_file = Settings.DEFAULT_TRAINING_FILE
 
-    # Ensure file doesn't exist
     train_file.unlink(missing_ok=True)
 
-    # Act
     response = client.post("/train/train")
 
-    # Assert - Should get 500 error for missing file
     assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
@@ -52,18 +42,14 @@ def test_train_endpoint_creates_model_file(
     client: TestClient,
     sample_train_csv_file: Path,
 ) -> None:
-    """Test that endpoint creates model file."""
-    # Arrange
     default_path = Settings.DEFAULT_TRAINING_FILE
     sample_train_csv_file.rename(default_path)
 
     model_path = Settings.MODEL_PATH
     model_path.unlink(missing_ok=True)
 
-    # Act
     response = client.post("/train/train")
 
-    # Assert
     assert response.status_code == status.HTTP_200_OK
     assert model_path.exists()
     assert model_path.stat().st_size > 0
@@ -73,15 +59,11 @@ def test_train_endpoint_response_format(
     client: TestClient,
     sample_train_csv_file: Path,
 ) -> None:
-    """Test that endpoint returns correct response format."""
-    # Arrange
     default_path = Settings.DEFAULT_TRAINING_FILE
     sample_train_csv_file.rename(default_path)
 
-    # Act
     response = client.post("/train/train")
 
-    # Assert
     assert response.status_code == status.HTTP_200_OK
     assert response.headers["Content-Type"] == "application/json"
 
@@ -95,40 +77,28 @@ def test_train_endpoint_can_train_multiple_times(
     client: TestClient,
     sample_train_csv_file: Path,
 ) -> None:
-    """Test that endpoint can be called multiple times successfully."""
-    # Arrange
     default_path = Settings.DEFAULT_TRAINING_FILE
     sample_train_csv_file.rename(default_path)
 
-    # Act - First training
     response1 = client.post("/train/train")
     model_size_1 = Settings.MODEL_PATH.stat().st_size
 
-    # Act - Second training
     response2 = client.post("/train/train")
     model_size_2 = Settings.MODEL_PATH.stat().st_size
 
-    # Assert
     assert response1.status_code == status.HTTP_200_OK
     assert response2.status_code == status.HTTP_200_OK
 
     assert response1.json()["message"] == "Model trained successfully"
     assert response2.json()["message"] == "Model trained successfully"
 
-    # Model should exist and have reasonable size
     assert Settings.MODEL_PATH.exists()
     assert model_size_1 > 0
     assert model_size_2 > 0
 
 
-def test_train_endpoint_with_minimal_csv(
-    client: TestClient,
-    test_train_csv_path: Path,
-) -> None:
-    """Test training with minimal valid CSV."""
+def test_train_endpoint_with_minimal_csv(client: TestClient) -> None:
 
-    # Arrange - Create minimal valid CSV with enough samples for stratified split
-    # Need at least 15 samples (3 per class * 3 classes, with 20% test = 3 in test)
     minimal_df = pl.DataFrame({
         "Event": ["Blitz"] * 5 + ["Rapid"] * 5 + ["Blitz"] * 5,
         "Result": [1, 1, -1, -1, 0] * 3,
@@ -178,10 +148,8 @@ def test_train_endpoint_with_minimal_csv(
     default_path = Settings.DEFAULT_TRAINING_FILE
     minimal_df.write_csv(default_path)
 
-    # Act
     response = client.post("/train/train")
 
-    # Assert
     assert response.status_code == status.HTTP_200_OK
 
 
@@ -189,18 +157,13 @@ def test_train_endpoint_handles_concurrent_requests(
     client: TestClient,
     sample_train_csv_file: Path,
 ) -> None:
-    """Test that endpoint handles concurrent training requests."""
-    # Arrange
     default_path = Settings.DEFAULT_TRAINING_FILE
     sample_train_csv_file.rename(default_path)
 
-    # Act - Simulate concurrent requests (sequential in test)
     response1 = client.post("/train/train")
     response2 = client.post("/train/train")
 
-    # Assert - Both should succeed
     assert response1.status_code == status.HTTP_200_OK
     assert response2.status_code == status.HTTP_200_OK
 
-    # Model should be valid
     assert Settings.MODEL_PATH.exists()

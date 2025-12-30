@@ -1,5 +1,3 @@
-"""Shared test fixtures and data generators for chess game testing."""
-
 import io
 from collections.abc import Generator
 from pathlib import Path
@@ -10,7 +8,6 @@ from fastapi import UploadFile
 
 from app.settings import Settings
 
-# Valid PGN data with games that pass all filters
 VALID_PGN_DATA = """[Event "Rated Blitz game"]
 [Site "https://lichess.org/VsUqVhC2"]
 [Date "2025.07.01"]
@@ -94,7 +91,6 @@ INVALID_ELO_PGN = """[Event "Rated Blitz game"]
 1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Na5 10. Bc2 c5 11. d4 Qc7 12. Nbd2 cxd4 13. cxd4 Nc6 14. Nb3 a5 15. Be3 a4 1-0
 """
 
-# Too few moves - should be filtered out
 TOO_FEW_MOVES_PGN = """[Event "Rated Blitz game"]
 [Site "https://lichess.org/test2"]
 [Date "2025.07.01"]
@@ -116,7 +112,6 @@ TOO_FEW_MOVES_PGN = """[Event "Rated Blitz game"]
 1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 1-0
 """
 
-# Wrong event type - should be filtered out
 WRONG_EVENT_TYPE_PGN = """[Event "Casual Blitz game"]
 [Site "https://lichess.org/test3"]
 [Date "2025.07.01"]
@@ -141,45 +136,38 @@ WRONG_EVENT_TYPE_PGN = """[Event "Casual Blitz game"]
 
 @pytest.fixture
 def valid_pgn_data() -> str:
-    """Return valid PGN data for testing."""
     return VALID_PGN_DATA
 
 
 @pytest.fixture
 def invalid_elo_pgn() -> str:
-    """Return PGN data with invalid ELO ratings."""
     return INVALID_ELO_PGN
 
 
 @pytest.fixture
 def too_few_moves_pgn() -> str:
-    """Return PGN data with too few moves."""
     return TOO_FEW_MOVES_PGN
 
 
 @pytest.fixture
 def wrong_event_type_pgn() -> str:
-    """Return PGN data with wrong event type."""
     return WRONG_EVENT_TYPE_PGN
 
 
 @pytest.fixture
 def valid_upload_file(valid_pgn_data: str) -> UploadFile:
-    """Create a valid UploadFile for testing."""
     file_obj = io.BytesIO(valid_pgn_data.encode())
     return UploadFile(filename="valid_test.pgn", file=file_obj)
 
 
 @pytest.fixture
 def invalid_elo_upload_file(invalid_elo_pgn: str) -> UploadFile:
-    """Create an UploadFile with invalid ELO data."""
     file_obj = io.BytesIO(invalid_elo_pgn.encode())
     return UploadFile(filename="invalid_elo_test.pgn", file=file_obj)
 
 
 @pytest.fixture
 def test_train_csv_path() -> Generator[Path, None, None]:
-    """Create a temporary path for train.csv during tests."""
     csv_path = Settings.UPLOAD_DIRECTORY / "test_train.csv"
     csv_path.unlink(missing_ok=True)
     yield csv_path
@@ -188,7 +176,6 @@ def test_train_csv_path() -> Generator[Path, None, None]:
 
 @pytest.fixture
 def test_model_path() -> Generator[Path, None, None]:
-    """Create a temporary path for model file during tests."""
     model_path = Settings.MODEL_DIRECTORY / "test_model.joblib"
     model_path.unlink(missing_ok=True)
     yield model_path
@@ -197,7 +184,6 @@ def test_model_path() -> Generator[Path, None, None]:
 
 @pytest.fixture
 def sample_train_csv() -> pl.DataFrame:
-    """Create a sample training DataFrame with proper structure."""
     return pl.DataFrame({
         "Event": ["Blitz", "Blitz", "Rapid", "Blitz", "Rapid", "Blitz"],
         "Result": [1, -1, 0, 1, -1, 0],
@@ -257,14 +243,12 @@ def sample_train_csv_file(
     sample_train_csv: pl.DataFrame,
     test_train_csv_path: Path,
 ) -> Path:
-    """Save sample training CSV to temporary file."""
     sample_train_csv.write_csv(test_train_csv_path)
     return test_train_csv_path
 
 
 @pytest.fixture(autouse=True)
 def cleanup_test_files() -> Generator[None, None, None]:
-    """Clean up any test files created during testing."""
     yield
 
     # Clean up test files

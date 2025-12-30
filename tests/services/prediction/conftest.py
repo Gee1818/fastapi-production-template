@@ -10,7 +10,6 @@ from app.settings import Settings
 
 @pytest.fixture
 def valid_chess_data() -> str:
-    """Return valid PGN data for testing."""
     return """[Event "Rated Blitz game"]
 [Site "https://lichess.org/VsUqVhC2"]
 [Date "2025.07.01"]
