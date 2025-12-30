@@ -11,7 +11,7 @@ ExceptionHandler = Callable[[Request, Exception], Response]
 
 EXCEPTION_HANDLERS: dict[type[Exception], ExceptionHandler] = {
     DataValidationError: data_validation_error_handler,  # type: ignore[dict-item]
-    FileNotFoundError: file_not_found_error_handler,
+    FileNotFoundError: file_not_found_error_handler,  # type: ignore[dict-item]
 }
 
 __all__ = ["EXCEPTION_HANDLERS"]

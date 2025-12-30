@@ -1,5 +1,3 @@
-"""Root test configuration and shared fixtures."""
-
 from collections.abc import Generator
 from pathlib import Path
 
@@ -12,7 +10,6 @@ from app.injections import configure_container
 from app.injections.test import TestContainer
 from app.settings import Settings
 
-# Import all chess data fixtures to make them available to all tests
 pytest_plugins = ["tests.fixtures.chess_data"]
 
 
@@ -21,19 +18,17 @@ def injector_override() -> None:
     """Override dependency injection container for testing."""
     container = configure_container()
     container.override(TestContainer)
-    container.wire(packages=["tests"])
+    container.wire(packages=["tests"])  # pylint: disable=no-member
 
 
 @pytest.fixture
 def client() -> TestClient:
-    """Fixture providing a FastAPI test client."""
     app = create_app()
     return TestClient(app)
 
 
 @pytest.fixture
-def test_train_csv_path() -> Generator[Path, None, None]:
-    """Fixture providing a path for test training CSV files."""
+def test_train_csv_path() -> Generator[Path]:
     csv_path = Settings.UPLOAD_DIRECTORY / "test_train.csv"
     csv_path.unlink(missing_ok=True)
     yield csv_path
@@ -41,8 +36,7 @@ def test_train_csv_path() -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def test_model_path() -> Generator[Path, None, None]:
-    """Fixture providing a path for test model files."""
+def test_model_path() -> Generator[Path]:
     model_path = Settings.MODEL_DIRECTORY / "test_model.joblib"
     model_path.unlink(missing_ok=True)
     yield model_path
@@ -51,7 +45,6 @@ def test_model_path() -> Generator[Path, None, None]:
 
 @pytest.fixture
 def sample_train_csv() -> pl.DataFrame:
-    """Fixture providing a sample training CSV DataFrame."""
     return pl.DataFrame({
         "Event": ["Blitz"] * 5 + ["Rapid"] * 5 + ["Blitz"] * 5,
         "Result": [1, 1, -1, -1, 0] * 3,
@@ -111,14 +104,12 @@ def sample_train_csv_file(
     sample_train_csv: pl.DataFrame,
     test_train_csv_path: Path,
 ) -> Path:
-    """Fixture providing a sample training CSV file."""
     sample_train_csv.write_csv(test_train_csv_path)
     return test_train_csv_path
 
 
 @pytest.fixture(autouse=True)
-def cleanup_test_files() -> Generator[None, None, None]:
-    """Clean up any test files created during testing."""
+def cleanup_test_files() -> Generator[None]:
     yield
 
     test_files = [

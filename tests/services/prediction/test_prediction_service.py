@@ -7,7 +7,6 @@ from app.services.prediction import NoTrainedModelError, PredictionService
 def test_model_property_returns_none_when_no_model_exists(
     prediction_service: PredictionService,
 ) -> None:
-    """Test that model property returns None when no trained model exists."""
     assert prediction_service.model is None
 
 
