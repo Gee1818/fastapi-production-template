@@ -35,7 +35,7 @@ def test_train_endpoint_without_training_file_fails(client: TestClient) -> None:
 
     response = client.post("/train/train")
 
-    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 def test_train_endpoint_creates_model_file(
