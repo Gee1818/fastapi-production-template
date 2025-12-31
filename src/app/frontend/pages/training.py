@@ -1,9 +1,3 @@
-"""Training page for the chess game prediction model.
-
-This module provides a two-step workflow for uploading training data
-and training the model, with robust error handling and clean UI.
-"""
-
 from typing import Any
 
 import polars as pl
@@ -13,8 +7,7 @@ from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import HTTPError, RequestException, Timeout
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
-UPLOAD_API_URL = "http://localhost:8000/upload/upload"
-TRAIN_API_URL = "http://localhost:8000/train/train"
+from .constants import TRAIN_API_URL, UPLOAD_API_URL
 
 
 class APIError(Exception):
