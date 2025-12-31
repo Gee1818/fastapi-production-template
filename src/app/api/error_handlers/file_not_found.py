@@ -7,6 +7,6 @@ def file_not_found_error_handler(
     exc: FileNotFoundError,
 ) -> JSONResponse:
     return JSONResponse(
-        status_code=500,
+        status_code=404,
         content={"detail": str(exc)},
     )

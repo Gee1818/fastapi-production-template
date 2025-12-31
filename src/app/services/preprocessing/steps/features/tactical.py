@@ -6,6 +6,8 @@ from app.services.preprocessing.config.feature_engineer_config import (
     FeatureEngineerConfig,
 )
 
+from .constants import MID_SQUARE_INDEX, TOTAL_NUM_SQUARES
+
 
 def _count_squares_attacked_by(
     board: chess.Board,
@@ -14,7 +16,7 @@ def _count_squares_attacked_by(
 ) -> int:
     return len([
         x
-        for x in range(64)
+        for x in range(TOTAL_NUM_SQUARES)
         if board.is_attacked_by(color, chess.SQUARES[x])
         and (filter_condition is None or filter_condition(x))
     ])
@@ -61,8 +63,6 @@ def calculate_attacked_pieces(
 def calculate_opponent_aggression(board: chess.Board | None) -> dict[str, int]:
     if board is None:
         return {"opponent_aggression": 0}
-
-    MID_SQUARE_INDEX = 31
 
     w = _count_squares_attacked_by(board, chess.WHITE, lambda x: x > MID_SQUARE_INDEX)
     b = _count_squares_attacked_by(board, chess.BLACK, lambda x: x < MID_SQUARE_INDEX)
