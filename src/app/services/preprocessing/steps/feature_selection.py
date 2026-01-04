@@ -1,15 +1,19 @@
 import polars as pl
 
 from app.services.preprocessing.config.feature_selection_config import SelectionConfig
-from app.services.preprocessing.steps.csv_save import csv_save
+from app.services.preprocessing.schemas import PreprocessingResult
 
 
-def select_features(df: pl.DataFrame, config: SelectionConfig) -> dict[str, str | int]:
+def select_features(
+    df: pl.DataFrame, config: SelectionConfig
+) -> tuple[pl.DataFrame, PreprocessingResult]:
+
     df = df.drop(config.features_to_drop)
-    csv_save(df)
 
-    return {
-        "message": "Feature selection completed",
-        "total_features": df.shape[1],
-        "total_rows": df.shape[0],
-    }
+    result = PreprocessingResult(
+        message="Feature selection completed",
+        total_features=df.shape[1],
+        total_rows=df.shape[0],
+    )
+
+    return df, result

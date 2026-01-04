@@ -24,7 +24,7 @@ class UploadService(BaseModel):
 
     def save_file(self, file: UploadFile) -> dict[str, str | int]:
 
-        msg = run_pipeline(
+        result = run_pipeline(
             file=file,
             filter_config=self.filter_config,
             mapping_config=self.mapping_config,
@@ -33,7 +33,7 @@ class UploadService(BaseModel):
         )
 
         return {
-            "message": msg["message"],
-            "totalFeatures": msg["total_features"],
-            "totalRows": msg["total_rows"],
+            "message": result.message,
+            "totalFeatures": result.total_features,
+            "totalRows": result.total_rows,
         }

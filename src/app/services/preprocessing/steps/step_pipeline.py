@@ -13,6 +13,8 @@ from app.services.preprocessing.config.feature_selection_config import (
 )
 from app.services.preprocessing.config.filter_config import FilterConfig
 from app.services.preprocessing.config.mapping_config import MappingConfig
+from app.services.preprocessing.schemas import PreprocessingResult
+from app.services.preprocessing.steps.csv_save import save_to_csv
 
 from .feature_engineer import add_features
 from .feature_selection import select_features
@@ -33,7 +35,7 @@ def run_pipeline(
     mapping_config: MappingConfig,
     feature_engineer_config: FeatureEngineerConfig,
     selection_config: SelectionConfig,
-) -> dict[str, str | int]:
+) -> PreprocessingResult:
     logger = logging.getLogger(__name__)
     logger.info("Starting preprocessing pipeline")
 
@@ -57,8 +59,11 @@ def run_pipeline(
     df = add_features(df, feature_engineer_config)
 
     logger.info("Selecting features")
-    msg = select_features(df, selection_config)
+    df, result = select_features(df, selection_config)
+
+    logger.info("Saving processed data to CSV")
+    save_to_csv(df)
 
     logger.info("Preprocessing pipeline completed successfully")
-    logger.info("Processed data saved at: %s", msg)
-    return msg
+
+    return result
