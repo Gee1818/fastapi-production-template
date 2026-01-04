@@ -7,7 +7,6 @@ from app.services.preprocessing.schemas import PreprocessingResult
 def select_features(
     df: pl.DataFrame, config: SelectionConfig
 ) -> tuple[pl.DataFrame, PreprocessingResult]:
-
     df = df.drop(config.features_to_drop)
 
     result = PreprocessingResult(

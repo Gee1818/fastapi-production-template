@@ -74,8 +74,7 @@ class TrainingService(BaseModel):
     def train(self, training_file_path: Path) -> MLModel:
 
         if not training_file_path.exists():
-            msg = f"Training file not found at {training_file_path}"
-            raise FileNotFoundError(msg)
+            raise FileNotFoundError(training_file_path)
         df = pl.read_csv(training_file_path)
 
         X, y = split_features_target(df)
