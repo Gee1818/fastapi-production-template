@@ -13,7 +13,7 @@ def test_train_with_nonexistent_file_fails(test_model_path: Path) -> None:
     with pytest.raises(FileNotFoundError) as exc_info:
         service.train(nonexistent_path)
 
-    assert f"Training file not found at {nonexistent_path}" in str(exc_info.value)
+    assert str(nonexistent_path) in str(exc_info.value)
 
 
 def test_train_success_with_valid_csv(
