@@ -14,5 +14,5 @@ def upload_service() -> UploadService:
 @pytest.fixture(autouse=True)
 def cleanup_train_csv() -> Generator[None]:
     yield
-    train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
+    train_file = Settings.DEFAULT_TRAINING_FILE
     train_file.unlink(missing_ok=True)

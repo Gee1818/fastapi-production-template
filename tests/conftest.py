@@ -37,7 +37,7 @@ def test_train_csv_path() -> Generator[Path]:
 
 @pytest.fixture
 def test_model_path() -> Generator[Path]:
-    model_path = Settings.MODEL_DIRECTORY / "test_model.joblib"
+    model_path = Settings.MODEL_PATH
     model_path.unlink(missing_ok=True)
     yield model_path
     model_path.unlink(missing_ok=True)
@@ -114,9 +114,9 @@ def cleanup_test_files() -> Generator[None]:
 
     test_files = [
         Settings.UPLOAD_DIRECTORY / "test_train.csv",
-        Settings.UPLOAD_DIRECTORY / "train.csv",
-        Settings.MODEL_DIRECTORY / "test_model.joblib",
-        Settings.MODEL_DIRECTORY / "model.joblib",
+        Settings.DEFAULT_TRAINING_FILE,
+        Settings.MODEL_PATH,
+        Settings.MODEL_PATH,
     ]
 
     for file_path in test_files:
