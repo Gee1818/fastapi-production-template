@@ -61,11 +61,12 @@ def _get_board_at_move(moves: str, move_number: int) -> chess.Board | None:
 
     board = game.board()
     move_count = 0
+    max_moves = move_number * MOVES_PER_TURN
 
     for move in game.mainline_moves():
         board.push(move)
         move_count += 1
-        if move_count == move_number * MOVES_PER_TURN:
+        if move_count == max_moves:
             return board
 
     return board if move_count > 0 else None
