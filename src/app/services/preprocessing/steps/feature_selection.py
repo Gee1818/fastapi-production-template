@@ -1,6 +1,6 @@
 import polars as pl
 
-from app.services.preprocessing.config.feature_selection_config import SelectionConfig
+from app.services.preprocessing.config import SelectionConfig
 from app.services.preprocessing.schemas import PreprocessingResult
 
 

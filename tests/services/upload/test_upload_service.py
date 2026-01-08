@@ -5,7 +5,6 @@ import pytest
 from fastapi import UploadFile
 
 from app.services.exceptions import DataValidationError
-from app.services.preprocessing.config.config import ELO_RANGE
 from app.services.upload import UploadService
 from app.settings import Settings
 
@@ -78,6 +77,7 @@ def test_save_file_filters_data_correctly(valid_upload_file: UploadFile) -> None
     df = pl.read_csv(train_file)
 
     # All rows should have valid ELO ratings
+    ELO_RANGE = (100, 3000)
     MIN_ELO, MAX_ELO = ELO_RANGE
 
     white_elo_min = df["WhiteElo"].min()

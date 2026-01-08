@@ -1,6 +1,6 @@
 import polars as pl
 
-from app.services.preprocessing.config.mapping_config import MappingConfig
+from app.services.preprocessing.config import MappingConfig
 
 
 def apply_mappings(df: pl.DataFrame, config: MappingConfig) -> pl.DataFrame:

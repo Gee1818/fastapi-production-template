@@ -1,6 +1,6 @@
 import polars as pl
 
-from app.services.preprocessing.config.feature_selection_config import SelectionConfig
+from app.services.preprocessing.config import SelectionConfig
 
 
 def split_features_target(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.Series]:

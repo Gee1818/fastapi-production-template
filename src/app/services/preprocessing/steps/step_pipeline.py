@@ -5,16 +5,14 @@ from pandera.errors import SchemaError
 
 from app.domain.chess_game import ChessGameSchema
 from app.services.exceptions import DataValidationError
-from app.services.preprocessing.config.feature_engineer_config import (
+from app.services.preprocessing.config import (
     FeatureEngineerConfig,
-)
-from app.services.preprocessing.config.feature_selection_config import (
+    FilterConfig,
+    MappingConfig,
     SelectionConfig,
 )
-from app.services.preprocessing.config.filter_config import FilterConfig
-from app.services.preprocessing.config.mapping_config import MappingConfig
 from app.services.preprocessing.schemas import PreprocessingResult
-from app.services.preprocessing.steps.csv_save import save_to_csv
+from app.services.preprocessing.steps import save_to_csv
 
 from .feature_engineer import add_features
 from .feature_selection import select_features

@@ -3,15 +3,13 @@ from pathlib import Path
 from fastapi import UploadFile
 from pydantic import BaseModel
 
-from app.services.preprocessing.config.feature_engineer_config import (
+from app.services.preprocessing.config import (
     FeatureEngineerConfig,
-)
-from app.services.preprocessing.config.feature_selection_config import (
+    FilterConfig,
+    MappingConfig,
     SelectionConfig,
 )
-from app.services.preprocessing.config.filter_config import FilterConfig
-from app.services.preprocessing.config.mapping_config import MappingConfig
-from app.services.preprocessing.steps.step_pipeline import run_pipeline
+from app.services.preprocessing.steps import run_pipeline
 from app.settings import Settings
 
 
