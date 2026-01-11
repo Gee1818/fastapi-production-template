@@ -15,15 +15,15 @@ def test_save_file_success(valid_upload_file: UploadFile) -> None:
 
     result = service.save_file(valid_upload_file)
 
-    assert "message" in result
-    assert "totalFeatures" in result
-    assert "totalRows" in result
+    assert hasattr(result, "message")
+    assert hasattr(result, "totalFeatures")
+    assert hasattr(result, "totalRows")
 
-    assert result["message"] == "Feature selection completed"
-    assert isinstance(result["totalFeatures"], int)
-    assert isinstance(result["totalRows"], int)
-    assert result["totalFeatures"] > 0
-    assert result["totalRows"] > 0
+    assert result.message == "Feature selection completed"
+    assert isinstance(result.total_features, int)
+    assert isinstance(result.total_rows, int)
+    assert result.total_features > 0
+    assert result.total_rows > 0
 
     train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
     assert train_file.exists()
@@ -111,8 +111,8 @@ def test_save_file_empty_after_filtering(wrong_event_type_pgn: str) -> None:
 
     result = service.save_file(upload_file)
 
-    assert result["totalRows"] == 0
-    assert int(result["totalFeatures"]) > 0
+    assert result.total_rows == 0
+    assert int(result.total_features) > 0
 
 
 def test_save_file_preserves_result_mapping(valid_upload_file: UploadFile) -> None:

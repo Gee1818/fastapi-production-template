@@ -16,5 +16,4 @@ def train(
     file: Annotated[UploadFile, File(...)],
     upload_service: UploadServiceDependency,
 ) -> UploadResponse:
-    result = upload_service.save_file(file)
-    return UploadResponse(**result)  # type: ignore[arg-type]
+    return upload_service.save_file(file)

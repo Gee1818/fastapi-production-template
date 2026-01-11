@@ -1,7 +1,3 @@
-from app.api.schema import BaseSchema
+from app.services.upload.schemas import UploadServiceResponse as UploadResponse
 
-
-class UploadResponse(BaseSchema):
-    message: str
-    total_features: int
-    total_rows: int
+__all__ = ["UploadResponse"]
