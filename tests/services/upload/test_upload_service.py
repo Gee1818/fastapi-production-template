@@ -16,8 +16,8 @@ def test_save_file_success(valid_upload_file: UploadFile) -> None:
     result = service.save_file(valid_upload_file)
 
     assert hasattr(result, "message")
-    assert hasattr(result, "totalFeatures")
-    assert hasattr(result, "totalRows")
+    assert hasattr(result, "total_features")
+    assert hasattr(result, "total_rows")
 
     assert result.message == "Feature selection completed"
     assert isinstance(result.total_features, int)
