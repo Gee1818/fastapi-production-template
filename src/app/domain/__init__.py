@@ -4,6 +4,7 @@ from .constants import ELOLimits, GameResult
 from .ml_model import MLModel
 from .prediction_input import PredictionInput
 from .prediction_output import PredictionOutput
+from .upload_output import UploadServiceResponse
 
 __all__ = [
     "BaseEntity",
@@ -13,4 +14,5 @@ __all__ = [
     "MLModel",
     "PredictionInput",
     "PredictionOutput",
+    "UploadServiceResponse",
 ]

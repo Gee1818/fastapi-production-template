@@ -16,4 +16,4 @@ def train(
     file: Annotated[UploadFile, File(...)],
     upload_service: UploadServiceDependency,
 ) -> UploadResponse:
-    return upload_service.save_file(file)
+    return UploadResponse(**upload_service.save_file(file).model_dump())

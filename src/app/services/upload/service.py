@@ -3,6 +3,7 @@ from pathlib import Path
 from fastapi import UploadFile
 from pydantic import BaseModel
 
+from app.domain import UploadServiceResponse
 from app.domain.preprocessing.config import (
     FeatureEngineerConfig,
     FilterConfig,
@@ -11,8 +12,6 @@ from app.domain.preprocessing.config import (
 )
 from app.domain.preprocessing.steps import run_pipeline
 from app.settings import Settings
-
-from .schemas import UploadServiceResponse
 
 
 class UploadService(BaseModel):
