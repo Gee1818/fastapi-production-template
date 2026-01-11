@@ -1,5 +1,3 @@
-from typing import Any
-
 import polars as pl
 import requests
 import streamlit as st
@@ -7,6 +5,7 @@ from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import HTTPError, RequestException, Timeout
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
+from app.frontend.schemas import TrainResponse, UploadResponse
 from app.frontend.settting import FrontendSettings
 
 
@@ -25,22 +24,22 @@ def initialize_session_state() -> None:
         st.session_state.training_result = None
 
 
-def display_upload_results(result: dict[str, Any]) -> None:
+def display_upload_results(result: UploadResponse) -> None:
     df = pl.DataFrame({
         "Metric": ["Message", "Total Features", "Total Rows"],
         "Value": [
-            str(result.get("message", "N/A")),
-            str(result.get("totalFeatures", "N/A")),
-            str(result.get("totalRows", "N/A")),
+            result.message,
+            str(result.total_features),
+            str(result.total_rows),
         ],
     })
     st.dataframe(df, use_container_width=True)  # pyright: ignore[reportUnknownMemberType]
 
 
-def display_training_results(result: dict[str, Any]) -> None:
+def display_training_results(result: TrainResponse) -> None:
     df = pl.DataFrame({
-        "Metric": list(result.keys()),
-        "Value": [str(v) for v in result.values()],
+        "Metric": ["Message"],
+        "Value": [result.message],
     })
     st.dataframe(df, use_container_width=True)  # pyright: ignore[reportUnknownMemberType]
 
@@ -73,7 +72,7 @@ def handle_api_error(error: RequestException, operation: str) -> None:
         st.exception(error)
 
 
-def upload_file(uploaded_file: UploadedFile) -> dict[str, Any]:
+def upload_file(uploaded_file: UploadedFile) -> UploadResponse:
     files = {
         "file": (
             uploaded_file.name,
@@ -87,26 +86,14 @@ def upload_file(uploaded_file: UploadedFile) -> dict[str, Any]:
     )
     response.raise_for_status()
 
-    result: dict[str, Any] = response.json()
-
-    # Validate response structure
-    required_keys = {"message", "totalFeatures", "totalRows"}
-    if not all(key in result for key in required_keys):
-        msg = "Invalid response structure: missing required keys"
-        raise APIError(msg)
-
-    return result
+    return UploadResponse.model_validate(response.json())
 
 
-def train_model() -> dict[str, Any]:
+def train_model() -> TrainResponse:
     response = requests.post(FrontendSettings().TRAIN_API_URL, timeout=300)
     response.raise_for_status()
 
-    result: dict[str, Any] = response.json()
-
-    # Validate response structure
-
-    return result
+    return TrainResponse.model_validate(response.json())
 
 
 def render_upload_section() -> None:
