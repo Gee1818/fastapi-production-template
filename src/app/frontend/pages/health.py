@@ -1,7 +1,9 @@
 import requests
 import streamlit as st
 
-API_BASE_URL = "http://localhost:8000/health"
+from app.frontend.settting import FrontendSettings
+
+HEALTH_URL = FrontendSettings().HEALTH_API_URL
 
 
 def health_page() -> None:
@@ -10,7 +12,7 @@ def health_page() -> None:
     if not st.button("Show Results"):
         return
 
-    response = requests.get(API_BASE_URL, timeout=5)
+    response = requests.get(HEALTH_URL, timeout=5)
     if response.ok:
         st.success(f"Prediction: {response.json()}")
         return

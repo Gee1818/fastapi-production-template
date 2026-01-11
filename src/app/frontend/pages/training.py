@@ -7,7 +7,7 @@ from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import HTTPError, RequestException, Timeout
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
-from .constants import TRAIN_API_URL, UPLOAD_API_URL
+from app.frontend.settting import FrontendSettings
 
 
 class APIError(Exception):
@@ -82,7 +82,9 @@ def upload_file(uploaded_file: UploadedFile) -> dict[str, Any]:
         )
     }
 
-    response = requests.post(UPLOAD_API_URL, files=files, timeout=300)
+    response = requests.post(
+        FrontendSettings().UPLOAD_API_URL, files=files, timeout=300
+    )
     response.raise_for_status()
 
     result: dict[str, Any] = response.json()
@@ -97,7 +99,7 @@ def upload_file(uploaded_file: UploadedFile) -> dict[str, Any]:
 
 
 def train_model() -> dict[str, Any]:
-    response = requests.post(TRAIN_API_URL, timeout=300)
+    response = requests.post(FrontendSettings().TRAIN_API_URL, timeout=300)
     response.raise_for_status()
 
     result: dict[str, Any] = response.json()
