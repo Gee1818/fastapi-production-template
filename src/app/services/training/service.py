@@ -12,8 +12,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
 from app.domain.ml_model import MLModel
+from app.domain.preprocessing.steps import split_features_target
 from app.services.helper import save_model
-from app.services.preprocessing.steps import split_features_target
 from app.settings import Settings
 
 from .config_model import ModelConfig

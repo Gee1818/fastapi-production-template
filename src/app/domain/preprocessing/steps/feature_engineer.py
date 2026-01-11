@@ -4,7 +4,7 @@ import chess
 import polars as pl
 from chess import pgn
 
-from app.services.preprocessing.config import FeatureEngineerConfig
+from app.domain.preprocessing.config import FeatureEngineerConfig
 
 from .features import (
     calculate_aggression,

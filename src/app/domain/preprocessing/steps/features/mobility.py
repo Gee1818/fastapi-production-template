@@ -1,6 +1,6 @@
 import chess
 
-from app.services.preprocessing.config import FeatureEngineerConfig
+from app.domain.preprocessing.config import FeatureEngineerConfig
 
 
 def calculate_mobility(

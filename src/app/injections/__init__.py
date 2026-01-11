@@ -4,7 +4,7 @@ from .production import Container
 from .test import TestContainer
 
 
-@cache
+@cache  # noqa: RUF067
 def configure_container() -> Container:
     container = Container()
     container.wire(packages=["app"])  # pylint: disable=no-member

@@ -4,7 +4,7 @@ import sys
 from app.settings import Settings
 
 
-def run_streamlit() -> None:
+def run_streamlit() -> None:  # noqa: RUF067
     subprocess.run(  # nosec # noqa: S603
         [
             sys.executable,

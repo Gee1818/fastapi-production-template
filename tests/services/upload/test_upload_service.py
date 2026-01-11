@@ -4,8 +4,8 @@ import polars as pl
 import pytest
 from fastapi import UploadFile
 
+from app.domain.preprocessing.config.config import ELO_RANGE
 from app.services.exceptions import DataValidationError
-from app.services.preprocessing.config.config import ELO_RANGE
 from app.services.upload import UploadService
 from app.settings import Settings
 

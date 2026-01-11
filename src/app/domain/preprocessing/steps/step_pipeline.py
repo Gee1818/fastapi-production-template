@@ -4,14 +4,14 @@ from fastapi import UploadFile
 from pandera.errors import SchemaError
 
 from app.domain.chess_game import ChessGameSchema
-from app.services.exceptions import DataValidationError
-from app.services.preprocessing.config import (
+from app.domain.preprocessing.config import (
     FeatureEngineerConfig,
     FilterConfig,
     MappingConfig,
     SelectionConfig,
 )
-from app.services.preprocessing.schemas import PreprocessingResult
+from app.domain.preprocessing.schemas import PreprocessingResult
+from app.services.exceptions import DataValidationError
 
 from .csv_save import save_to_csv
 from .feature_engineer import add_features

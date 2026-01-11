@@ -1,7 +1,7 @@
 import polars as pl
 
-from app.services.preprocessing.config import SelectionConfig
-from app.services.preprocessing.schemas import PreprocessingResult
+from app.domain.preprocessing.config import SelectionConfig
+from app.domain.preprocessing.schemas import PreprocessingResult
 
 
 def select_features(

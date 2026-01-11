@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 import chess
 
-from app.services.preprocessing.config import FeatureEngineerConfig
+from app.domain.preprocessing.config import FeatureEngineerConfig
 
 from .constants import MID_SQUARE_INDEX, TOTAL_NUM_SQUARES
 
