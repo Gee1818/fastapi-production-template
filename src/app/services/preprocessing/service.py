@@ -28,8 +28,6 @@ logging.basicConfig(
 
 
 class PreprocessingService(BaseModel):
-    """Service for preprocessing chess game data."""
-
     filter_config: FilterConfig
     mapping_config: MappingConfig
     feature_engineer_config: FeatureEngineerConfig
