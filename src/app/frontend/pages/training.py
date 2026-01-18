@@ -95,7 +95,6 @@ def train_model() -> TrainResponse:
 
 
 def handle_file_upload(uploaded_file: UploadedFile) -> None:
-    """Handle file upload process with error handling."""
     try:
         result = upload_file(uploaded_file)
         st.session_state.upload_complete = True
@@ -109,7 +108,6 @@ def handle_file_upload(uploaded_file: UploadedFile) -> None:
 
 
 def handle_model_training() -> None:
-    """Handle model training process with error handling."""
     try:
         result = train_model()
         st.session_state.training_complete = True
@@ -124,7 +122,6 @@ def handle_model_training() -> None:
 
 
 def handle_reset() -> None:
-    """Reset session state for new upload."""
     st.session_state.upload_complete = False
     st.session_state.upload_result = None
     st.session_state.training_complete = False
@@ -133,7 +130,6 @@ def handle_reset() -> None:
 
 
 def render_upload_section() -> None:
-    """Render the file upload section of the page."""
     st.subheader("📤 Step 1: Upload Training Data")
 
     uploaded_file = st.file_uploader(
@@ -167,7 +163,6 @@ def render_upload_section() -> None:
 
 
 def render_training_section() -> None:
-    """Render the model training section of the page."""
     st.subheader("🎓 Step 2: Train Model")
 
     if not st.session_state.upload_complete:
@@ -196,7 +191,6 @@ def render_training_section() -> None:
 
 
 def render_reset_section() -> None:
-    """Render the reset section to start over with a new file."""
     if not (st.session_state.upload_complete or st.session_state.training_complete):
         return
 
@@ -214,8 +208,6 @@ def render_reset_section() -> None:
 
 
 def training_page() -> None:
-    """Main training page function with two-step workflow."""
-    # Page header
     st.title("🤖 Model Training")
     st.markdown(
         "Upload a PGN file containing chess games and train the prediction model. "
