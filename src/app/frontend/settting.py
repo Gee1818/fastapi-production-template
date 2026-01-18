@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class FrontendSettings(BaseSettings):
+class _FrontendSettings(BaseSettings):
     API_ROOT_URL: str = "http://localhost:8000"
 
     model_config = SettingsConfigDict(extra="ignore")
@@ -17,3 +17,7 @@ class FrontendSettings(BaseSettings):
     @property
     def HEALTH_API_URL(self) -> str:
         return f"{self.API_ROOT_URL}/health"
+
+
+# Singleton instance
+FrontendSettings = _FrontendSettings()

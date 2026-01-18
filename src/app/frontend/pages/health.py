@@ -3,8 +3,6 @@ import streamlit as st
 
 from app.frontend.settting import FrontendSettings
 
-HEALTH_URL = FrontendSettings().HEALTH_API_URL
-
 
 def health_page() -> None:
     st.write("# Health Page")
@@ -12,9 +10,10 @@ def health_page() -> None:
     if not st.button("Show Results"):
         return
 
-    response = requests.get(HEALTH_URL, timeout=5)
-    if response.ok:
-        st.success(f"Prediction: {response.json()}")
+    response = requests.get(FrontendSettings.HEALTH_API_URL, timeout=5)
+
+    if not response.ok:
+        st.error(f"There was an error in the request: {response.text}")
         return
 
-    st.error(f"There was an error in the request: {response.text}")
+    st.success(f"Prediction: {response.json()}")

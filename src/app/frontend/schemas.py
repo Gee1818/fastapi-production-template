@@ -1,19 +1,17 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class UploadResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     message: str = Field(description="Status message")
     total_features: int = Field(
         alias="totalFeatures", ge=0, description="Number of features"
     )
     total_rows: int = Field(alias="totalRows", ge=0, description="Number of rows")
 
-    class Config:
-        populate_by_name = True  # Allow both snake_case and camelCase
-
 
 class TrainResponse(BaseModel):
-    message: str = Field(description="Training status message")
+    model_config = ConfigDict(populate_by_name=True)
 
-    class Config:
-        populate_by_name = True
+    message: str = Field(description="Training status message")

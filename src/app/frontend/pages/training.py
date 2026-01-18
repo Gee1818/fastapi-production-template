@@ -81,19 +81,55 @@ def upload_file(uploaded_file: UploadedFile) -> UploadResponse:
         )
     }
 
-    response = requests.post(
-        FrontendSettings().UPLOAD_API_URL, files=files, timeout=300
-    )
+    response = requests.post(FrontendSettings.UPLOAD_API_URL, files=files, timeout=300)
     response.raise_for_status()
 
     return UploadResponse.model_validate(response.json())
 
 
 def train_model() -> TrainResponse:
-    response = requests.post(FrontendSettings().TRAIN_API_URL, timeout=300)
+    response = requests.post(FrontendSettings.TRAIN_API_URL, timeout=300)
     response.raise_for_status()
 
     return TrainResponse.model_validate(response.json())
+
+
+def handle_file_upload(uploaded_file: UploadedFile) -> None:
+    """Handle file upload process with error handling."""
+    try:
+        result = upload_file(uploaded_file)
+        st.session_state.upload_complete = True
+        st.session_state.upload_result = result
+        st.success("✅ File uploaded and processed successfully!")
+        display_upload_results(result)
+        st.rerun()
+    except RequestException as e:
+        handle_api_error(e, "upload")
+        st.session_state.upload_complete = False
+
+
+def handle_model_training() -> None:
+    """Handle model training process with error handling."""
+    try:
+        result = train_model()
+        st.session_state.training_complete = True
+        st.session_state.training_result = result
+        st.success("✅ Model trained successfully!")
+        display_training_results(result)
+        st.balloons()
+        st.rerun()
+    except RequestException as e:
+        handle_api_error(e, "training")
+        st.session_state.training_complete = False
+
+
+def handle_reset() -> None:
+    """Reset session state for new upload."""
+    st.session_state.upload_complete = False
+    st.session_state.upload_result = None
+    st.session_state.training_complete = False
+    st.session_state.training_result = None
+    st.rerun()
 
 
 def render_upload_section() -> None:
@@ -113,32 +149,21 @@ def render_upload_section() -> None:
             display_upload_results(st.session_state.upload_result)
 
     # Upload button
-    if st.button(
+    if not st.button(
         "Upload and Process File",
         type="primary",
         disabled=uploaded_file is None,
         key="upload_btn",
         use_container_width=True,
     ):
-        if uploaded_file is None:
-            st.warning("⚠️ Please upload a file first.")
-            return
+        return
 
-        with st.spinner(
-            "⏳ Uploading and processing file... This may take a few minutes."
-        ):
-            try:
-                result = upload_file(uploaded_file)
+    if uploaded_file is None:
+        st.warning("⚠️ Please upload a file first.")
+        return
 
-                st.session_state.upload_complete = True
-                st.session_state.upload_result = result
-                st.success("✅ File uploaded and processed successfully!")
-                display_upload_results(result)
-                st.rerun()
-
-            except RequestException as e:
-                handle_api_error(e, "upload")
-                st.session_state.upload_complete = False
+    with st.spinner("⏳ Uploading and processing file... This may take a few minutes."):
+        handle_file_upload(uploaded_file)
 
 
 def render_training_section() -> None:
@@ -157,45 +182,35 @@ def render_training_section() -> None:
         with st.expander("📊 View Training Results", expanded=False):
             display_training_results(st.session_state.training_result)
 
-    if st.button(
+    if not st.button(
         "Train Model",
         type="primary",
         disabled=not st.session_state.upload_complete,
         key="train_btn",
         use_container_width=True,
     ):
-        with st.spinner("⏳ Training model... This may take a few minutes."):
-            try:
-                result = train_model()
+        return
 
-                st.session_state.training_complete = True
-                st.session_state.training_result = result
-                st.success("✅ Model trained successfully!")
-                display_training_results(result)
-                st.balloons()
-                st.rerun()
-
-            except RequestException as e:
-                handle_api_error(e, "training")
-                st.session_state.training_complete = False
+    with st.spinner("⏳ Training model... This may take a few minutes."):
+        handle_model_training()
 
 
 def render_reset_section() -> None:
     """Render the reset section to start over with a new file."""
-    if st.session_state.upload_complete or st.session_state.training_complete:
-        st.divider()
-        _col1, col2, _col3 = st.columns([1, 2, 1])
-        with col2:
-            if st.button(
-                "🔄 Reset and Upload New File",
-                key="reset_btn",
-                use_container_width=True,
-            ):
-                st.session_state.upload_complete = False
-                st.session_state.upload_result = None
-                st.session_state.training_complete = False
-                st.session_state.training_result = None
-                st.rerun()
+    if not (st.session_state.upload_complete or st.session_state.training_complete):
+        return
+
+    st.divider()
+    _col1, col2, _col3 = st.columns([1, 2, 1])
+    with col2:
+        if not st.button(
+            "🔄 Reset and Upload New File",
+            key="reset_btn",
+            use_container_width=True,
+        ):
+            return
+
+        handle_reset()
 
 
 def training_page() -> None:
