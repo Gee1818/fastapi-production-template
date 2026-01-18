@@ -10,10 +10,11 @@ from app.services.upload import UploadService
 from app.settings import Settings
 
 
-def test_save_file_success(valid_upload_file: UploadFile) -> None:
-    service = UploadService()
-
-    result = service.save_file(valid_upload_file)
+def test_save_file_success(
+    valid_upload_file: UploadFile,
+    upload_service: UploadService,
+) -> None:
+    result = upload_service.save_file(valid_upload_file)
 
     assert hasattr(result, "message")
     assert hasattr(result, "total_features")
@@ -29,20 +30,22 @@ def test_save_file_success(valid_upload_file: UploadFile) -> None:
     assert train_file.exists()
 
 
-def test_save_file_invalid_elo_fails(invalid_elo_upload_file: UploadFile) -> None:
-    service = UploadService()
-
+def test_save_file_invalid_elo_fails(
+    invalid_elo_upload_file: UploadFile,
+    upload_service: UploadService,
+) -> None:
     with pytest.raises(DataValidationError) as exc_info:
-        service.save_file(invalid_elo_upload_file)
+        upload_service.save_file(invalid_elo_upload_file)
 
     assert "Data validation failed" in exc_info.value.message
     assert "WhiteElo" in exc_info.value.message or "BlackElo" in exc_info.value.message
 
 
-def test_save_file_creates_correct_structure(valid_upload_file: UploadFile) -> None:
-    service = UploadService()
-
-    service.save_file(valid_upload_file)
+def test_save_file_creates_correct_structure(
+    valid_upload_file: UploadFile,
+    upload_service: UploadService,
+) -> None:
+    upload_service.save_file(valid_upload_file)
 
     train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
     df = pl.read_csv(train_file)
@@ -69,10 +72,11 @@ def test_save_file_creates_correct_structure(valid_upload_file: UploadFile) -> N
         assert col not in df.columns, f"Column {col} should be filtered out"
 
 
-def test_save_file_filters_data_correctly(valid_upload_file: UploadFile) -> None:
-    service = UploadService()
-
-    service.save_file(valid_upload_file)
+def test_save_file_filters_data_correctly(
+    valid_upload_file: UploadFile,
+    upload_service: UploadService,
+) -> None:
+    upload_service.save_file(valid_upload_file)
 
     train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
     df = pl.read_csv(train_file)
@@ -104,21 +108,24 @@ def test_save_file_filters_data_correctly(valid_upload_file: UploadFile) -> None
     assert all(event in valid_events for event in df["Event"].unique())
 
 
-def test_save_file_empty_after_filtering(wrong_event_type_pgn: str) -> None:
-    service = UploadService()
+def test_save_file_empty_after_filtering(
+    wrong_event_type_pgn: str,
+    upload_service: UploadService,
+) -> None:
     file_obj = io.BytesIO(wrong_event_type_pgn.encode())
     upload_file = UploadFile(filename="wrong_event.pgn", file=file_obj)
 
-    result = service.save_file(upload_file)
+    result = upload_service.save_file(upload_file)
 
     assert result.total_rows == 0
     assert int(result.total_features) > 0
 
 
-def test_save_file_preserves_result_mapping(valid_upload_file: UploadFile) -> None:
-    service = UploadService()
-
-    service.save_file(valid_upload_file)
+def test_save_file_preserves_result_mapping(
+    valid_upload_file: UploadFile,
+    upload_service: UploadService,
+) -> None:
+    upload_service.save_file(valid_upload_file)
 
     train_file = Settings.UPLOAD_DIRECTORY / "train.csv"
     df = pl.read_csv(train_file)
