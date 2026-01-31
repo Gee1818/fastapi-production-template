@@ -19,7 +19,7 @@ class ReadFileService(BaseModel):
         except SchemaError as e:
             raise DataValidationError(message=f"Data validation failed: {e!s}") from e
 
-        df.write_csv(Settings.UPLOAD_DIRECTORY / "train.csv")
+        df.write_csv(Settings.UPLOAD_DIRECTORY / "data_raw.csv")
 
         return ReadFileServiceResponse(
             message="Feature selection completed",
