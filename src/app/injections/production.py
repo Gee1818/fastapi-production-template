@@ -6,7 +6,12 @@ from app.domain.preprocessing.config import (
     MappingConfig,
     SelectionConfig,
 )
-from app.services import PredictionService, TrainingService, UploadService
+from app.services import (
+    PredictionService,
+    ReadFileService,
+    TrainingService,
+    UploadService,
+)
 from app.services.preprocessing.service import PreprocessingService
 
 
@@ -33,3 +38,4 @@ class Container(containers.DeclarativeContainer):
 
     prediction_service = providers.Factory(PredictionService)
     training_service = providers.Factory(TrainingService)
+    read_file_service = providers.Factory(ReadFileService)
