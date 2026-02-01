@@ -1,5 +1,10 @@
 from .base import BaseEntity
 from .chess_game import ChessGameSchema
+from .column_transformer_input import (
+    numeric_cols,
+    ohe_cols,
+    ordinal_cols,
+)
 from .constants import ELOLimits, GameResult
 from .ml_model import MLModel
 from .prediction_input import PredictionInput
@@ -27,4 +32,7 @@ __all__ = [
     "PredictionOutput",
     "ReadFileServiceResponse",
     "UploadServiceResponse",
+    "numeric_cols",
+    "ohe_cols",
+    "ordinal_cols",
 ]
