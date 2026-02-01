@@ -100,20 +100,17 @@ class TrainingService(BaseModel):
 
         df = pl.read_csv(training_file_path)
 
-        data, target = split_features_target(df)
-
-        # Run preprocessing pipeline
+        # Run preprocessing pipeline first — it needs "Result" for MappingTransformer
         preprocessing_pipeline = self.build_data_cleaning_pipeline()
-        X = preprocessing_pipeline.fit_transform(data)  # pyright: ignore[reportUnknownMemberType]
+        X = preprocessing_pipeline.fit_transform(df)
+
+        # Split features and target after mapping has converted "Result" to integers
+        X, target = split_features_target(X)
 
         # Define column types
         ohe_cols = ["Event", "TimeControl", "Termination"]
         ordinal_cols = ["ECO", "Opening"]
-        numeric_cols = list(
-            set(preprocessing_pipeline.feature_names_in_)
-            - set(ohe_cols)
-            - set(ordinal_cols)
-        )
+        numeric_cols = list(set(X.columns) - set(ohe_cols) - set(ordinal_cols))
 
         # Build sklearn pipeline
         model_pipeline = self.build_model_pipeline(
