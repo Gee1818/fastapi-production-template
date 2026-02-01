@@ -12,7 +12,7 @@ from app.domain.preprocessing.config import (
 from app.domain.preprocessing.steps.feature_engineer import add_features
 from app.domain.preprocessing.steps.feature_selection import select_features
 from app.domain.preprocessing.steps.filter import apply_filters
-from app.domain.preprocessing.steps.mapping import apply_mappings
+from app.domain.preprocessing.steps.mapping import apply_mappings_features
 
 
 class FilterTransformer(BaseEstimator, TransformerMixin):
@@ -38,7 +38,7 @@ class MappingTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X: pl.DataFrame) -> pl.DataFrame:
-        return apply_mappings(X, self.mapping_config)
+        return apply_mappings_features(X, self.mapping_config)
 
 
 class FeatureEngineerTransformer(BaseEstimator, TransformerMixin):
@@ -59,12 +59,11 @@ class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
 
     def __init__(self) -> None:
         self.selection_config = SelectionConfig()
-        self.target_ = None
+        self.target_: pl.Series | None = None
 
     def fit(self, _X: pl.DataFrame, _y: pl.Series | None = None) -> Self:
         return self
 
     def transform(self, X: pl.DataFrame) -> pl.DataFrame:
-        # Store the target for later extraction
         self.target_ = X[self.selection_config.target_feature]
         return select_features(X, self.selection_config)

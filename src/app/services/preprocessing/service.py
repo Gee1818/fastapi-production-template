@@ -16,7 +16,7 @@ from app.domain.preprocessing.steps import save_to_csv
 from app.domain.preprocessing.steps.feature_engineer import add_features
 from app.domain.preprocessing.steps.feature_selection import select_features
 from app.domain.preprocessing.steps.filter import apply_filters
-from app.domain.preprocessing.steps.mapping import apply_mappings
+from app.domain.preprocessing.steps.mapping import apply_mappings_features
 from app.domain.preprocessing.steps.parse_df import read_file
 from app.services.exceptions import DataValidationError
 
@@ -53,7 +53,7 @@ class PreprocessingService(BaseModel):
         df = apply_filters(df, self.filter_config)
 
         logger.info("Applying mappings")
-        df = apply_mappings(df, self.mapping_config)
+        df = apply_mappings_features(df, self.mapping_config)
 
         logger.info("Adding features")
         df = add_features(df, self.feature_engineer_config)
