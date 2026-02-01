@@ -13,6 +13,12 @@ from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
 from app.domain.ml_model import MLModel
 from app.domain.preprocessing.steps import split_features_target
+from app.domain.transformers import (
+    FeatureEngineerTransformer,
+    FeatureSelectionTransformer,
+    FilterTransformer,
+    MappingTransformer,
+)
 from app.services.helper import save_model
 from app.settings import Settings
 
@@ -25,12 +31,29 @@ class TrainingService(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @staticmethod
-    def build_pipeline(
+    def build_data_cleaning_pipeline() -> Pipeline:
+        return Pipeline(
+            steps=[
+                ("filter", FilterTransformer()),
+                ("mapping", MappingTransformer()),
+                (
+                    "feature_engineer",
+                    FeatureEngineerTransformer(),
+                ),
+                (
+                    "feature_selection",
+                    FeatureSelectionTransformer(),
+                ),
+            ]
+        )
+
+    @staticmethod
+    def build_model_pipeline(
         numeric_cols: list[str],
         ordinal_cols: list[str],
         ohe_cols: list[str],
     ) -> Pipeline:
-        preprocessing_pipeline = ColumnTransformer(
+        sklearn_preprocessing = ColumnTransformer(
             transformers=[
                 ("num", StandardScaler(), numeric_cols),
                 (
@@ -54,7 +77,7 @@ class TrainingService(BaseModel):
 
         return Pipeline(
             steps=[
-                ("preprocessor", preprocessing_pipeline),
+                ("sklearn_preprocessor", sklearn_preprocessing),
                 (
                     "classifier",
                     RandomForestClassifier(
@@ -72,30 +95,43 @@ class TrainingService(BaseModel):
         )
 
     def train(self, training_file_path: Path) -> MLModel:
-
         if not training_file_path.exists():
             raise FileNotFoundError(training_file_path)
+
         df = pl.read_csv(training_file_path)
 
-        X, y = split_features_target(df)
+        data, target = split_features_target(df)
 
+        # Run preprocessing pipeline
+        preprocessing_pipeline = self.build_data_cleaning_pipeline()
+        X = preprocessing_pipeline.fit_transform(data)  # pyright: ignore[reportUnknownMemberType]
+
+        # Define column types
         ohe_cols = ["Event", "TimeControl", "Termination"]
-
         ordinal_cols = ["ECO", "Opening"]
+        numeric_cols = list(
+            set(preprocessing_pipeline.feature_names_in_)
+            - set(ohe_cols)
+            - set(ordinal_cols)
+        )
 
-        numeric_cols = list(set(X.columns) - set(ohe_cols) - set(ordinal_cols))
-
-        pipeline = self.build_pipeline(
+        # Build sklearn pipeline
+        model_pipeline = self.build_model_pipeline(
             numeric_cols=numeric_cols,
             ordinal_cols=ordinal_cols,
             ohe_cols=ohe_cols,
         )
 
+        # Split data
         X_train, X_test, y_train, _y_test = train_test_split(  # pyright: ignore[reportUnknownVariableType]
-            X, y, test_size=0.2, random_state=42, stratify=y
-        )  # pyright: ignore[reportUnknownVariableType]
-        pipeline.fit(X_train, y_train)  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
-        save_model(pipeline, self.model_path)
-        pipeline.predict(X_test)  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
+            X, target, test_size=0.2, random_state=42, stratify=target
+        )
 
-        return pipeline
+        # Train and evaluate
+        model_pipeline.fit(X_train, y_train)  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
+
+        save_model(model_pipeline, self.model_path)
+
+        _preds = model_pipeline.predict(X_test)  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
+
+        return model_pipeline
