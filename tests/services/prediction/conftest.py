@@ -6,12 +6,6 @@ from dependency_injector.wiring import Provide, inject
 
 from app.services.prediction import PredictionService
 from app.settings import Settings
-from tests.fixtures.chess_data import get_valid_chess_data
-
-
-@pytest.fixture
-def valid_chess_data() -> str:
-    return get_valid_chess_data()
 
 
 @pytest.fixture

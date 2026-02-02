@@ -18,6 +18,16 @@ class _Settings(BaseSettings):
         return model_directory
 
     @property
+    def UPLOAD_DIRECTORY(self) -> Path:
+        upload_directory = self.APP_PATH / "uploads"
+        upload_directory.mkdir(parents=True, exist_ok=True)
+        return upload_directory
+
+    @property
+    def DEFAULT_TRAINING_FILE(self) -> Path:
+        return self.UPLOAD_DIRECTORY / "data_raw.csv"
+
+    @property
     def MODEL_PATH(self) -> Path:
         return self.MODEL_DIRECTORY / "model.joblib"
 

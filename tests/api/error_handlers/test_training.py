@@ -26,14 +26,15 @@ def test_data_validation_error_handler(client: TestClient) -> None:
 1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Na5 10. Bc2 c5 11. d4 Qc7 12. Nbd2 cxd4 13. cxd4 Nc6 14. Nb3 a5 15. Be3 a4 1-0
 """  # noqa: E501
 
-    response = client.post(
-        "/train/train",
+    # Upload the invalid file first
+    upload_response = client.post(
+        "/upload/upload",
         files={
             "file": ("test.pgn", invalid_elo_pgn.encode(), "application/x-chess-pgn")
         },
     )
 
     # The error handler should return 400 status code
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "detail" in response.json()
-    assert "validation" in response.json()["detail"].lower()
+    assert upload_response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "detail" in upload_response.json()
+    assert "validation" in upload_response.json()["detail"].lower()

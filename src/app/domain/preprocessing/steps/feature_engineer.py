@@ -4,27 +4,23 @@ import chess
 import polars as pl
 from chess import pgn
 
-from app.services.preprocessing.config.feature_engineer_config import (
-    FeatureEngineerConfig,
-)
+from app.domain.preprocessing.config import FeatureEngineerConfig
 
-from .features.material import calculate_dof_x_material, calculate_material
-from .features.mobility import calculate_degrees_of_freedom, calculate_mobility
-from .features.position import (
-    calculate_center_advantage,
-    calculate_center_control,
-    calculate_piece_positions,
-    calculate_position_advantage,
-)
-from .features.strategic import (
-    calculate_castling_rights,
-    calculate_pawn_structure,
-)
-from .features.tactical import (
+from .features import (
     calculate_aggression,
     calculate_attacked_pieces,
+    calculate_castling_rights,
+    calculate_center_advantage,
+    calculate_center_control,
+    calculate_degrees_of_freedom,
+    calculate_dof_x_material,
+    calculate_material,
+    calculate_mobility,
     calculate_opponent_aggression,
+    calculate_pawn_structure,
+    calculate_piece_positions,
     calculate_pieces_protected,
+    calculate_position_advantage,
 )
 
 MOVES_PER_TURN = 2
@@ -65,11 +61,12 @@ def _get_board_at_move(moves: str, move_number: int) -> chess.Board | None:
 
     board = game.board()
     move_count = 0
+    max_moves = move_number * MOVES_PER_TURN
 
     for move in game.mainline_moves():
         board.push(move)
         move_count += 1
-        if move_count == move_number * MOVES_PER_TURN:
+        if move_count == max_moves:
             return board
 
     return board if move_count > 0 else None

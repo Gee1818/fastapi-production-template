@@ -2,7 +2,7 @@ from collections.abc import Sequence
 
 import polars as pl
 
-from app.services.preprocessing.config.filter_config import FilterConfig
+from app.domain.preprocessing.config import FilterConfig
 
 
 def apply_filters(df: pl.DataFrame, filter_config: FilterConfig) -> pl.DataFrame:

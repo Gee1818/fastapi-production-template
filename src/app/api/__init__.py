@@ -5,7 +5,7 @@ from app.settings import Settings
 from .app import create_app
 
 
-def run_api() -> None:
+def run_api() -> None:  # noqa: RUF067
     uvicorn.run(
         "app.api:create_app",
         factory=True,

@@ -144,6 +144,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# Uploads
+src/app/uploads/*.csv
+
 # Spyder project settings
 .spyderproject
 .spyproject
