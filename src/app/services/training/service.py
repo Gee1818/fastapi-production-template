@@ -1,6 +1,4 @@
-import logging
 from pathlib import Path
-from typing import cast
 
 import polars as pl
 from joblib import Memory
@@ -15,6 +13,7 @@ from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
 from app.domain.column_transformer_input import numeric_cols, ohe_cols, ordinal_cols
 from app.domain.ml_model import MLModel
+from app.domain.preprocessing.steps import split_features_target
 from app.domain.transformers import (
     FeatureEngineerTransformer,
     FeatureSelectionTransformer,
@@ -26,13 +25,6 @@ from app.settings import Settings
 
 from .config_model import ModelConfig
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    force=True,
-)
-logger = logging.getLogger(__name__)
-
 
 class TrainingService(BaseModel):
     model_path: Path = Field(default=Settings.MODEL_PATH)
@@ -40,19 +32,20 @@ class TrainingService(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @staticmethod
-    def build_data_cleaning_pipeline() -> Pipeline:
+    def build_preprocessing_pipeline() -> Pipeline:
         return Pipeline(
             steps=[
                 ("filter", FilterTransformer()),
                 ("mapping", MappingTransformer()),
-                (
-                    "feature_engineer",
-                    FeatureEngineerTransformer(),
-                ),
-                (
-                    "feature_selection",
-                    FeatureSelectionTransformer(),
-                ),
+                ("feature_engineer", FeatureEngineerTransformer()),
+                ("feature_selection", FeatureSelectionTransformer()),
+            ],
+        )
+
+    @staticmethod
+    def build_model_pipeline() -> Pipeline:
+        return Pipeline(
+            steps=[
                 (
                     "column_transformer",
                     ColumnTransformer(
@@ -76,7 +69,7 @@ class TrainingService(BaseModel):
                     ),
                 ),
                 (
-                    "classifier",
+                    "model",
                     RandomForestClassifier(
                         n_estimators=ModelConfig.n_estimators,
                         max_depth=ModelConfig.max_depth,
@@ -89,7 +82,7 @@ class TrainingService(BaseModel):
                 ),
             ],
             memory=Memory(
-                location=str(Settings.MODEL_DIRECTORY / "pipeline_cache"),
+                location=str(Settings.MODEL_DIRECTORY / "model_pipeline_cache"),
                 verbose=0,
             ),
         )
@@ -98,27 +91,21 @@ class TrainingService(BaseModel):
         if not training_file_path.exists():
             raise FileNotFoundError(training_file_path)
 
-        df = pl.read_csv(training_file_path)
-        logger.info("Loaded training data from %s", training_file_path)
+        df_raw = pl.read_csv(training_file_path)
 
-        pipeline = self.build_data_cleaning_pipeline()
+        preprocessing = self.build_preprocessing_pipeline()
 
-        x = df
-        for _name, step in pipeline.steps[:-1]:
-            x = step.fit_transform(x)
+        df_preprocessed = preprocessing.fit_transform(df_raw)  # pyright: ignore[reportUnknownMemberType]
 
-        feature_selection = cast(
-            "FeatureSelectionTransformer", pipeline.named_steps["feature_selection"]
-        )
-        y: pl.Series = feature_selection.target_  # type: ignore[assignment]
+        X, y = split_features_target(df_preprocessed)  # type: ignore  # noqa: PGH003
 
-        X_train, X_test, y_train, _y_test = train_test_split(  # pyright: ignore[reportUnknownVariableType]
-            x, y, test_size=0.2, random_state=42, stratify=y
+        x_train, _x_test, y_train, _y_test = train_test_split(  # pyright: ignore[reportUnknownVariableType]
+            X, y, test_size=0.2, random_state=42, stratify=y
         )
 
-        pipeline.named_steps["classifier"].fit(X_train, y_train)  # pyright: ignore[reportUnknownMemberType]
+        model = self.build_model_pipeline()
+        model.fit(x_train, y_train)  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
 
-        save_model(pipeline, self.model_path)
+        save_model(model, self.model_path)
 
-        _preds = pipeline.named_steps["classifier"].predict(X_test)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-        return pipeline
+        return model
