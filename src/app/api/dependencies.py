@@ -7,7 +7,6 @@ from app.services import (
     PredictionService,
     ReadFileService,
     TrainingService,
-    UploadService,
 )
 
 PredictionServiceDependency = Annotated[
@@ -18,11 +17,6 @@ PredictionServiceDependency = Annotated[
 TrainingServiceDependency = Annotated[
     TrainingService,
     Depends(Provide["training_service"]),
-]
-
-UploadServiceDependency = Annotated[
-    UploadService,
-    Depends(Provide["upload_service"]),
 ]
 
 ReadFileServiceDependency = Annotated[
